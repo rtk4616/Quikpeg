@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
-import com.bowstringLLP.quikpeg.R;
 import com.bowstringLLP.quikpeg.MainFragment.ListItemClickListener;
 import com.bowstringLLP.quikpeg.NoticeDialogFragment.NoticeDialogListener;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -43,26 +42,32 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 	Records selectedRecord;
 	static ProgressDialog dialog;
 	static enum Mode {NORMAL, LASTGOODSEARCH, DRY, DAYBEFOREDRY};
-	Mode mode;	
+	Mode mode;
+	static RecordsUpdateListener recListener;
 
 	public final static String STORE_RECORD = "com.bowstringLLP.oneclickalcohol.STORE_RECORD";
 	public final static String LOCATION_LATITUDE = "com.bowstringLLP.oneclickalcohol.LOCATION_LATITUDE";
 	public final static String LOCATION_LONGITUDE = "com.bowstringLLP.oneclickalcohol.LOCATION_LONGITUDE";
 
+	public interface RecordsUpdateListener
+	{
+		public void onRecordsUpdated(List<Records> records);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splashscreen);
 		timeElapsed = (long) 0;
 		getOverflowMenu();
-
+		
 		locFind = new LocationFinder();
 		builder = new RecordBuilder(this);
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		settings.registerOnSharedPreferenceChangeListener(prefListener);
 		settings.edit().putString("Mode", Mode.NORMAL.toString()).apply();
 
-		reload();
+		fetchRecords(true);
 	}
 
 	@TargetApi(11)
@@ -97,7 +102,6 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 			else
 			{
 				setRecordList(prefs.getBoolean(key, true));
-				mainFrag.load(records);
 			}
 		}
 };
@@ -165,11 +169,10 @@ protected void onStop()
 	@Override
 	public void onDialogContinueClick(DialogFragment dialog) {
 		builder.readGoodRecords();		
-		setRecordList(settings.getBoolean("Status", true));
 		if(findViewById(R.id.list) == null)
-			loadFragments();
-		else
-			mainFrag.load(records);	
+			loadFragments();	
+
+		setRecordList(settings.getBoolean("Status", true));
 	}
 
 	@Override
@@ -190,7 +193,7 @@ protected void onStop()
 			// the fragment_container FrameLayout
 			if (findViewById(R.id.fragment_container) != null) {
 
-				// Create an instance of ExampleFragment
+				/*// Create an instance of ExampleFragment
 				mainFrag = new MainFragment();
 
 				// In case this activity was started with special instructions from an Intent,
@@ -199,8 +202,9 @@ protected void onStop()
 
 				// Add the fragment to the 'fragment_container' FrameLayout
 				getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mainFrag).commit();
-				//getSupportFragmentManager().executePendingTransactions();
+				//getSupportFragmentManager().executePendingTransactions();*/
 				
+				new TabInterfaceManager(this);
 			}
 			else
 			{
@@ -266,13 +270,17 @@ protected void onStop()
 
 		if(records == null)
 			showNoticeDialog(str);
+		else
+			recListener.onRecordsUpdated(records);
 	}
 
 	@Override
-	public void refresh()
+	public void fetchRecords(boolean shouldRefresh)
 	{
-		//startLoad();
-		new BuildListTask().execute(null,null,null);
+		if(shouldRefresh)
+			new BuildListTask().execute(null,null,null);
+		else
+			recListener.onRecordsUpdated(records);
 	}
 	
 	public void onClickMap(View view)
@@ -283,19 +291,6 @@ protected void onStop()
 		intent.putExtra(LOCATION_LATITUDE, getIntent().getDoubleExtra(LOCATION_LATITUDE,currentLocation.getLatitude()));
 		intent.putExtra(LOCATION_LONGITUDE, getIntent().getDoubleExtra(LOCATION_LONGITUDE,currentLocation.getLongitude()));
 		startActivity(intent);
-	}
-
-	@Override
-	public void reload()
-	{
-		timeElapsed = System.currentTimeMillis()-timeElapsed;
-		if(timeElapsed > 300000)
-			new BuildListTask().execute(null,null,null);
-		else
-		{
-			mainFrag.load(records);			
-			timeElapsed = System.currentTimeMillis();
-		}
 	}
 
 	LocationManager locationManager;
@@ -366,15 +361,14 @@ protected void onStop()
 
 					currentLocation = location;
 					builder.buildRecordList(currentLocation);
-					setRecordList(settings.getBoolean("Status", true));
 					runOnUiThread(new Runnable() {
 					     public void run() {
 					    	 if(findViewById(R.id.list) == null)
 								loadFragments();
-							else
-								mainFrag.load(records);
+
+							setRecordList(settings.getBoolean("Status", true));
 					    }
-					});
+					});					
 				}
 			}
 

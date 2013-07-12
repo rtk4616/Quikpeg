@@ -46,120 +46,6 @@ public class RecordBuilder{
 			String stateName = getCity(currentLocation).name;
 			makeList(currentLocation, stateName);
 			isDryDay(stateName);
-			/*if(cursor!=null)
-				cursor.close();
-
-			String query = "SELECT*FROM MainLocation";
-			cursor = (SQLiteCursor) manager.select(query);
-			Location loc = new Location(currentLocation);
-			cityRecList = new ArrayList<CityRecords>();
-			if(cursor.moveToFirst())
-			{
-				do
-				{
-					CityRecords cityRec = new CityRecords();
-
-					cityRec.name = cursor.getString(cursor.getColumnIndex("City"));
-					cityRec.latitude = cursor.getDouble(cursor.getColumnIndex("Latitude"));
-					cityRec.longitude = cursor.getDouble(cursor.getColumnIndex("Longitude"));
-					cityRec.dateMod = cursor.getString(cursor.getColumnIndex("DateMod"));
-
-					loc.setLatitude(cityRec.latitude);
-					loc.setLongitude(cityRec.longitude);
-
-
-					cityRec.distance = currentLocation.distanceTo(loc);
-
-					cityRecList.add(cityRec);
-				}while(cursor.moveToNext());
-				
-				Collections.sort(cityRecList);
-				cursor.close();
-			}*/
-			
-			/*query = "SELECT*FROM " + cityRecList.get(0).name;
-			cursor = (SQLiteCursor) manager.select(query);
-			Location storeLocation = new Location(currentLocation);
-			if(cursor.moveToFirst())
-			{
-				masterRecordList = new ArrayList<Records>();
-				openRecordList = new ArrayList<Records>();
-				do
-				{
-					storeLocation.setLatitude(cursor.getDouble(cursor.getColumnIndex("Latitude")));
-					storeLocation.setLongitude(cursor.getDouble(cursor.getColumnIndex("Longitude")));
-
-					float f = currentLocation.distanceTo(storeLocation);
-					if(f <= 4000)
-					{
-
-						rec = new Records();
-						rec.name = cursor.getString(cursor.getColumnIndex("Name"));
-						rec.latitude = storeLocation.getLatitude();
-						rec.longitude = storeLocation.getLongitude();
-
-						String str = cursor.getString(cursor.getColumnIndex("Verified"));
-						rec.isVerified =  str.toUpperCase(Locale.ENGLISH).matches("YES") ? true : false;
-
-						rec.region = cursor.getString(cursor.getColumnIndex("Region"));
-						rec.address = cursor.getString(cursor.getColumnIndex("Address"));
-						rec.notes = cursor.getString(cursor.getColumnIndex("Notes"));
-						rec.mondayOpen = cursor.getInt(cursor.getColumnIndex("MondayOpen"));
-						rec.mondayClose = cursor.getInt(cursor.getColumnIndex("MondayClose"));
-						rec.tuesdayOpen = cursor.getInt(cursor.getColumnIndex("TuesdayOpen"));
-						rec.tuesdayClose = cursor.getInt(cursor.getColumnIndex("TuesdayClose"));
-						rec.wednesdayOpen = cursor.getInt(cursor.getColumnIndex("WednesdayOpen"));
-						rec.wednesdayClose = cursor.getInt(cursor.getColumnIndex("WednesdayClose"));
-						rec.thursdayOpen = cursor.getInt(cursor.getColumnIndex("ThursdayOpen"));
-						rec.thursdayClose = cursor.getInt(cursor.getColumnIndex("ThursdayClose"));
-						rec.fridayOpen = cursor.getInt(cursor.getColumnIndex("FridayOpen"));
-						rec.fridayClose = cursor.getInt(cursor.getColumnIndex("FridayClose"));
-						rec.saturdayOpen = cursor.getInt(cursor.getColumnIndex("SaturdayOpen"));
-						rec.saturdayClose = cursor.getInt(cursor.getColumnIndex("SaturdayClose"));
-						rec.sundayOpen = cursor.getInt(cursor.getColumnIndex("SundayOpen"));
-						rec.sundayClose = cursor.getInt(cursor.getColumnIndex("SundayClose"));				
-						rec.distance = getDistanceFromLocation(storeLocation, currentLocation);
-						masterRecordList.add(rec);
-						if(rec.isOpen())
-							openRecordList.add(rec);
-					}
-				}while(cursor.moveToNext());
-				cursor.close();
-
-				Collections.sort(masterRecordList);
-				Collections.sort(openRecordList);
-			}*/
-
-			/*query = "SELECT*FROM DryDays";
-			cursor = (SQLiteCursor) manager.select(query);
-			
-			if(cursor.moveToFirst())
-			{
-				Calendar currentDate = new GregorianCalendar();
-				Calendar cal = new GregorianCalendar();
-				do
-				{
-					String state = cursor.getString(cursor.getColumnIndex("State")).toUpperCase(Locale.ENGLISH);
-					if(state.equals(cityRecList.get(0).name) || state.matches("NATIONAL"))
-					{
-						cal.setTime(new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date"))));
-						switch(daysBetween(currentDate.getTime(), cal.getTime()))
-						{
-						case 0:	dryDay = new DryDay();
-						dryDay.holidayDate.setTime(new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date"))));
-						dryDay.holidayName = cursor.getString(cursor.getColumnIndex("Holiday"));
-							MainActivity.settings.edit().putString("Mode", Mode.DRY.toString()).commit();
-								break;
-								
-						case 1:	dryDay = new DryDay();
-						dryDay.holidayDate.setTime(new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date"))));
-						dryDay.holidayName = cursor.getString(cursor.getColumnIndex("Holiday"));
-						MainActivity.settings.edit().putString("Mode", Mode.DAYBEFOREDRY.toString()).commit();
-								break;
-						}
-					}
-				}while(cursor.moveToNext());
-			}*/
 			return true;
 		}
 		catch(Exception e)
@@ -235,7 +121,7 @@ public class RecordBuilder{
 					storeLocation.setLongitude(cursor.getDouble(cursor.getColumnIndex("Longitude")));
 
 					float f = currentLocation == null ? 0 : currentLocation.distanceTo(storeLocation);
-					if(f <= 4000)
+					if(f <= 3000)
 					{
 
 						rec = new Records();
@@ -465,74 +351,7 @@ public class RecordBuilder{
 
 			isDryDay(getCity(loc).name);
 			
-			/*SQLiteCursor cursor = (SQLiteCursor) manager.select("SELECT*FROM OfflineList");
-			if(cursor.moveToFirst())
-			{
-				masterRecordList.clear();
-				openRecordList.clear();
-				do
-				{		
-					rec = new Records();
-					rec.name = cursor.getString(cursor.getColumnIndex("Name"));
-
-					String str = cursor.getString(cursor.getColumnIndex("Verified"));
-					rec.isVerified =  str.toUpperCase(Locale.ENGLISH).matches("YES") ? true : false;
-
-					rec.region = cursor.getString(cursor.getColumnIndex("Region"));
-					rec.latitude = cursor.getDouble(cursor.getColumnIndex("Latitude"));					
-					rec.longitude = cursor.getDouble(cursor.getColumnIndex("Longitude"));
-					rec.address = cursor.getString(cursor.getColumnIndex("Address"));
-					rec.mondayOpen = cursor.getInt(cursor.getColumnIndex("MondayOpen"));
-					rec.mondayClose = cursor.getInt(cursor.getColumnIndex("MondayClose"));
-					rec.tuesdayOpen = cursor.getInt(cursor.getColumnIndex("TuesdayOpen"));
-					rec.tuesdayClose = cursor.getInt(cursor.getColumnIndex("TuesdayClose"));
-					rec.wednesdayOpen = cursor.getInt(cursor.getColumnIndex("WednesdayOpen"));
-					rec.wednesdayClose = cursor.getInt(cursor.getColumnIndex("WednesdayClose"));
-					rec.thursdayOpen = cursor.getInt(cursor.getColumnIndex("ThursdayOpen"));
-					rec.thursdayClose = cursor.getInt(cursor.getColumnIndex("ThursdayClose"));
-					rec.fridayOpen = cursor.getInt(cursor.getColumnIndex("FridayOpen"));
-					rec.fridayClose = cursor.getInt(cursor.getColumnIndex("FridayClose"));
-					rec.saturdayOpen = cursor.getInt(cursor.getColumnIndex("SaturdayOpen"));
-					rec.saturdayClose = cursor.getInt(cursor.getColumnIndex("SaturdayClose"));
-					rec.sundayOpen = cursor.getInt(cursor.getColumnIndex("SundayOpen"));
-					rec.sundayClose = cursor.getInt(cursor.getColumnIndex("SundayClose"));
-					rec.distance = null;
-					masterRecordList.add(rec);
-					if(rec.isOpen())
-						openRecordList.add(rec);
-				}while(cursor.moveToNext());
-			}
-			cursor.close();
 			
-			cursor = (SQLiteCursor) manager.select("SELECT*FROM DryDays");
-			
-			if(cursor.moveToFirst())
-			{
-				Calendar currentDate = new GregorianCalendar();
-				Calendar cal = new GregorianCalendar();
-				do
-				{
-					String state = cursor.getString(cursor.getColumnIndex("State")).toUpperCase(Locale.ENGLISH);
-					if(state.equals(cityRecList.get(0).name) || state.matches("NATIONAL"))
-					{
-						cal.setTime(new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date"))));
-						switch(daysBetween(currentDate.getTime(), cal.getTime()))
-						{
-						case 0:	dryDay = new DryDay();
-						dryDay.holidayDate.setTime(new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date"))));
-						dryDay.holidayName = cursor.getString(cursor.getColumnIndex("Holiday"));
-							context.getSharedPreferences("com.bowstringLLP.quikpeg_preferences", Context.MODE_PRIVATE).edit().putString("Mode", Mode.DRY.toString());
-								break;
-								
-						case 1:	dryDay = new DryDay();
-						dryDay.holidayDate.setTime(new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date"))));
-						dryDay.holidayName = cursor.getString(cursor.getColumnIndex("Holiday"));
-						context.getSharedPreferences("com.bowstringLLP.quikpeg_preferences", Context.MODE_PRIVATE).edit().putString("Mode", Mode.DAYBEFOREDRY.toString());
-								break;
-						}
-					}
-				}while(cursor.moveToNext());
-			}*/
 		}catch(Exception e)
 		{
 			e.printStackTrace();

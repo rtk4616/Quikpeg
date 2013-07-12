@@ -22,9 +22,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.bowstringLLP.quikpeg.R;
 
-public class MainFragment extends Fragment {
+import com.bowstringLLP.quikpeg.MainActivity.RecordsUpdateListener;
+
+public class MainFragment extends Fragment implements RecordsUpdateListener {
 
 	ProgressBar progressBar = null;
 	TextView emptyTextView = null;
@@ -36,8 +37,7 @@ public class MainFragment extends Fragment {
 	public interface ListItemClickListener
 	{
 		public void onListItemClick(int position);
-		public void reload();
-		public void refresh();
+		public void fetchRecords(boolean shouldRefresh);
 	}
 
 	@Override
@@ -80,8 +80,8 @@ public class MainFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		mListener.reload();
 		getListView().setEmptyView(getEmptyTextView());
+		mListener.fetchRecords(false);
 		getListView().setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				mListener.onListItemClick(arg2);
@@ -119,7 +119,7 @@ public class MainFragment extends Fragment {
 		switch(item.getItemId())
 		{
 		case R.id.Refresh:
-			mListener.refresh();
+			mListener.fetchRecords(true);
 			break;
 		case android.R.id.home:
 			getActivity().onBackPressed();
@@ -138,7 +138,8 @@ public class MainFragment extends Fragment {
 		return listView;
 	}
 
-	public void load(List<Records> records) {
+	@Override
+	public void onRecordsUpdated(List<Records> records) {
 		adapter.setContent(records);
 		getListView().setAdapter(adapter);
 
