@@ -38,7 +38,6 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 	List<Records> records;
 	static SharedPreferences settings;
 	DetailsFragment detailsFrag;
-	MainFragment mainFrag;
 	Records selectedRecord;
 	static ProgressDialog dialog;
 	static enum Mode {NORMAL, LASTGOODSEARCH, DRY, DAYBEFOREDRY};
@@ -100,9 +99,7 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 				}
 			}
 			else
-			{
 				setRecordList(prefs.getBoolean(key, true));
-			}
 		}
 };
 
@@ -122,22 +119,6 @@ protected void onStop()
 	{
 		super.onDestroy();
 		builder.closeDatabase();
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId())
-		{
-		case R.id.Refresh:
-			onDialogRetryClick(null);
-			break;
-		case android.R.id.home:
-			onBackPressed();
-			break;
-		default:
-			startActivity(item.getIntent());
-		}
-		return true;
 	}
 	
 	private void getOverflowMenu() {
@@ -188,29 +169,14 @@ protected void onStop()
 	private void loadFragments() {
 		
 			setContentView(R.layout.activity_main);
-			
+
+			new TabInterfaceManager(this);
 			// Check that the activity is using the layout version with
 			// the fragment_container FrameLayout
-			if (findViewById(R.id.fragment_container) != null) {
-
-				/*// Create an instance of ExampleFragment
-				mainFrag = new MainFragment();
-
-				// In case this activity was started with special instructions from an Intent,
-				// pass the Intent's extras to the fragment as arguments
-				mainFrag.setArguments(getIntent().getExtras());
-
-				// Add the fragment to the 'fragment_container' FrameLayout
-				getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mainFrag).commit();
-				//getSupportFragmentManager().executePendingTransactions();*/
-				
-				new TabInterfaceManager(this);
-			}
-			else
+			if (findViewById(R.id.fragment_container) == null)
 			{
-				mainFrag =  (MainFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment);
 				detailsFrag = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
-				detailsFrag.updateDetailView(records.get(0));
+				onListItemClick(0);
 			}	
 	}
 	

@@ -140,32 +140,35 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 
 	@Override
 	public void onRecordsUpdated(List<Records> records) {
-		adapter.setContent(records);
-		getListView().setAdapter(adapter);
-
-		String str = getActivity().getSharedPreferences("com.bowstringLLP.quikpeg_preferences", Context.MODE_PRIVATE).getString("Mode", "NORMAL");
-		switch(MainActivity.Mode.valueOf(str))
+		if(records != null)
 		{
-		case	NORMAL:
-		case	DAYBEFOREDRY:
-			getActivity().setTitle(getString(R.string.mainTitle));
-			getActivity().setTitleColor(Color.parseColor("#ffffff"));
-			break;
-			
-		case	DRY:
-			getActivity().setTitle("DRY DAY");
-			getActivity().setTitleColor(Color.parseColor("#D89020"));
-			break;
-			
-		case	LASTGOODSEARCH:
-			getActivity().setTitle("LAST GOOD SEARCH");
-			getActivity().setTitleColor(Color.parseColor("#D89020"));
+			adapter.setContent(records);
+			getListView().setAdapter(adapter);
+
+			String str = getActivity().getSharedPreferences("com.bowstringLLP.quikpeg_preferences", Context.MODE_PRIVATE).getString("Mode", "NORMAL");
+			switch(MainActivity.Mode.valueOf(str))
+			{
+			case	NORMAL:
+			case	DAYBEFOREDRY:
+				getActivity().setTitle(getString(R.string.mainTitle));
+				getActivity().setTitleColor(Color.parseColor("#ffffff"));
+				break;
+
+			case	DRY:
+				getActivity().setTitle("DRY DAY");
+				getActivity().setTitleColor(Color.parseColor("#D89020"));
+				break;
+
+			case	LASTGOODSEARCH:
+				getActivity().setTitle("LAST GOOD SEARCH");
+				getActivity().setTitleColor(Color.parseColor("#D89020"));
+			}
+
+			if(MainActivity.dialog != null)
+				MainActivity.dialog.dismiss();
 		}
-		
-		if(MainActivity.dialog != null)
-			MainActivity.dialog.dismiss();
 	}
-	
+
 	public TextView getEmptyTextView()
 	{
 		//if(emptyTextView == null)

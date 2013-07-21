@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.widget.TabHost;
 import android.widget.TabHost.TabContentFactory;
+import android.widget.TabWidget;
 
 import com.bowstringLLP.quikpeg.MainActivity.RecordsUpdateListener;
 
@@ -25,10 +26,12 @@ public class TabInterfaceManager implements TabHost.OnTabChangeListener{
          private Class clss;
          private Bundle args;
          private Fragment fragment;
-         TabInfo(String tag, Class clazz, Bundle args) {
+         private int tabIndex;
+         TabInfo(String tag, Class clazz, Bundle args, int index) {
              this.tag = tag;
              this.clss = clazz;
              this.args = args;
+             tabIndex = index;
          }
  
     }
@@ -69,14 +72,15 @@ public class TabInterfaceManager implements TabHost.OnTabChangeListener{
         mTabHost = (TabHost)activity.findViewById(android.R.id.tabhost);
         mTabHost.setup();
         TabInfo tabInfo = null;
-        addTab(mTabHost, mTabHost.newTabSpec("List").setIndicator("List"), ( tabInfo = new TabInfo("List", MainFragment.class, null)));
+        addTab(mTabHost, mTabHost.newTabSpec("List").setIndicator("List"), ( tabInfo = new TabInfo("List", MainFragment.class, null, 0)));
         mapTabInfo.put(tabInfo.tag, tabInfo);
-        addTab(mTabHost, mTabHost.newTabSpec("Map").setIndicator("Map"), ( tabInfo = new TabInfo("Map", MapTabFragment.class, null)));
+        addTab(mTabHost, mTabHost.newTabSpec("Map").setIndicator("Map"), ( tabInfo = new TabInfo("Map", MapTabFragment.class, null, 1)));
         mapTabInfo.put(tabInfo.tag, tabInfo);
         // Default to first tab
-        this.onTabChanged("List");
         //
         mTabHost.setOnTabChangedListener(this);
+       // TabWidget tab = (TabWidget) activity.findViewById(android.R.id.tabs);
+        mTabHost.setCurrentTab(1);
     }
  
     /**
@@ -128,7 +132,7 @@ public class TabInterfaceManager implements TabHost.OnTabChangeListener{
 
                 MainActivity.recListener = (RecordsUpdateListener) newTab.fragment;
             }
- 
+            
             mLastTab = newTab;
             ft.commit();
             activity.getSupportFragmentManager().executePendingTransactions();
