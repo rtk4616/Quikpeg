@@ -26,14 +26,11 @@ public class TabInterfaceManager implements TabHost.OnTabChangeListener{
          private Class clss;
          private Bundle args;
          private Fragment fragment;
-         private int tabIndex;
-         TabInfo(String tag, Class clazz, Bundle args, int index) {
+         TabInfo(String tag, Class clazz, Bundle args) {
              this.tag = tag;
              this.clss = clazz;
              this.args = args;
-             tabIndex = index;
          }
- 
     }
  
     class TabFactory implements TabContentFactory {
@@ -72,15 +69,15 @@ public class TabInterfaceManager implements TabHost.OnTabChangeListener{
         mTabHost = (TabHost)activity.findViewById(android.R.id.tabhost);
         mTabHost.setup();
         TabInfo tabInfo = null;
-        addTab(mTabHost, mTabHost.newTabSpec("List").setIndicator("List"), ( tabInfo = new TabInfo("List", MainFragment.class, null, 0)));
+        addTab(mTabHost, mTabHost.newTabSpec("List").setIndicator("List"), ( tabInfo = new TabInfo("List", MainFragment.class, null)));
         mapTabInfo.put(tabInfo.tag, tabInfo);
-        addTab(mTabHost, mTabHost.newTabSpec("Map").setIndicator("Map"), ( tabInfo = new TabInfo("Map", MapTabFragment.class, null, 1)));
+        addTab(mTabHost, mTabHost.newTabSpec("Map").setIndicator("Map"), ( tabInfo = new TabInfo("Map", MapTabFragment.class, null)));
         mapTabInfo.put(tabInfo.tag, tabInfo);
         // Default to first tab
         //
         mTabHost.setOnTabChangedListener(this);
        // TabWidget tab = (TabWidget) activity.findViewById(android.R.id.tabs);
-        mTabHost.setCurrentTab(1);
+        mTabHost.setCurrentTabByTag("Map");
     }
  
     /**
