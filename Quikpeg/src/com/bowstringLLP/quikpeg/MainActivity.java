@@ -78,7 +78,7 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 	protected void onStart()
 	{
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		//EasyTracker.getInstance().activityStart(this);
 	}
 
 	SharedPreferences.OnSharedPreferenceChangeListener prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -111,7 +111,7 @@ protected void onStop()
 		if(builder.getMasterRecordList() !=null && builder.getMasterRecordList().size() != 0)
 			builder.writeGoodRecords();		
 
-		EasyTracker.getInstance().activityStop(this);
+		//EasyTracker.getInstance().activityStop(this);
 	}
 	
 	@Override
