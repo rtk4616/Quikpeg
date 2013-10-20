@@ -121,7 +121,7 @@ public class RecordBuilder{
 					storeLocation.setLongitude(cursor.getDouble(cursor.getColumnIndex("Longitude")));
 
 					float f = currentLocation == null ? 0 : currentLocation.distanceTo(storeLocation);
-					if(f <= 3000)
+					if(f <= 20000)
 					{
 
 						rec = new Records();
@@ -149,7 +149,7 @@ public class RecordBuilder{
 						rec.saturdayClose = cursor.getInt(cursor.getColumnIndex("SaturdayClose"));
 						rec.sundayOpen = cursor.getInt(cursor.getColumnIndex("SundayOpen"));
 						rec.sundayClose = cursor.getInt(cursor.getColumnIndex("SundayClose"));				
-						rec.distance = currentLocation == null ? null : getDistanceFromLocation(storeLocation, currentLocation);
+						rec.distance = f;
 						masterRecordList.add(rec);
 						if(rec.timeTillOpenClose()>0)
 							openRecordList.add(rec);
@@ -157,6 +157,20 @@ public class RecordBuilder{
 				}while(cursor.moveToNext());
 				cursor.close();
 
+				if(currentLocation!=null)
+				{
+					Collections.sort(masterRecordList);
+					Collections.sort(openRecordList);
+				}
+				
+				for(int i=0; i<100 && i<masterRecordList.size(); i++)
+				{
+					rec = masterRecordList.get(i);
+					rec.distance = currentLocation == null ? null : getDistanceFromLocation(rec.latitude, rec.latitude, currentLocation);
+					if(rec.timeTillOpenClose()>0)
+						openRecordList.add(rec);
+				}
+				
 				if(currentLocation!=null)
 				{
 					Collections.sort(masterRecordList);
@@ -228,7 +242,7 @@ public class RecordBuilder{
 		return dryDay;
 	}
 
-	private Float getDistanceFromLocation(Location storeLocation, Location currentLocation)
+	private Float getDistanceFromLocation(double latitude, double longitude, Location currentLocation)
 	{	
 		try
 		{
@@ -253,7 +267,7 @@ public class RecordBuilder{
 			HttpURLConnection urlConnection= null;
 			URL url = null;
 
-			url = new URL("http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude() + "&destinations=" + storeLocation.getLatitude() + "," + storeLocation.getLongitude() + "&mode=driving&sensor=true");
+			url = new URL("http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude() + "&destinations=" + latitude + "," + longitude + "&mode=driving&sensor=true");
 			urlConnection=(HttpURLConnection)url.openConnection();
 			urlConnection.setRequestMethod("GET");
 			//urlConnection.setDoOutput(true);

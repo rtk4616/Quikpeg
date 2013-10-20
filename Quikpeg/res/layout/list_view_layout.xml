@@ -1,63 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:padding="10dp"
-	android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="10.0dip" >
 
-	<ImageView
-		android:id="@+id/verifyImage"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_centerVertical="true"
-		android:background="@drawable/verified" />
+    <ImageView
+        android:id="@+id/verifyImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:background="@drawable/verified" />
 
-	<TextView
-		android:id="@+id/NameText"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_centerVertical="true"
-		android:layout_toRightOf="@id/verifyImage"
-		android:padding="10dp"
-		android:textSize="20sp"
-		android:textStyle="bold"
-		android:textColor="#ffffff"
-		android:hint="PAN SINGH TOMAR" />
+    <TextView
+        android:id="@+id/NameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/verifyImage"
+        android:hint="PAN SINGH TOMAR"
+        android:padding="10.0dip"
+        android:textColor="#ffffffff"
+        android:textSize="20.0sp"
+        android:textStyle="bold" />
 
-	<TextView
-		android:id="@+id/RegionText"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/NameText"
-		android:layout_alignLeft="@id/NameText"
-		android:padding="10dp"
-		android:textSize="13sp"
-		android:textColor="#C8C8C8"
-		android:hint="PAN SINGH TOMAR" />
+    <TextView
+        android:id="@+id/RegionText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/NameText"
+        android:layout_below="@id/NameText"
+        android:hint="PAN SINGH TOMAR"
+        android:padding="10.0dip"
+        android:textColor="#ffc8c8c8"
+        android:textSize="13.0sp" />
 
-	<TextView
-		android:id="@+id/DistanceText"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:padding="10dp"
-		android:layout_alignParentRight="true"
-		android:textSize="18sp"
-		android:textStyle="bold"
-		android:textColor="#ffffff"
-		android:hint="Hello" />
+    <TextView
+        android:id="@+id/DistanceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:hint="Hello"
+        android:padding="10.0dip"
+        android:textColor="#ffffffff"
+        android:textSize="18.0sp"
+        android:textStyle="bold" />
 
-	<TextView
-		android:id="@+id/OpenClose"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:padding="10dp"
-		android:layout_alignParentRight="true"
-		android:layout_below="@id/DistanceText"
-		android:textSize="18sp"
-		android:textStyle="bold"
-		android:textColor="#ffffff"
-		android:hint="OPEn" />
-
+    <TextView
+        android:id="@+id/OpenClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/DistanceText"
+        android:hint="OPEn"
+        android:padding="10.0dip"
+        android:textColor="#ffffffff"
+        android:textSize="18.0sp"
+        android:textStyle="bold" />
 
 </RelativeLayout>

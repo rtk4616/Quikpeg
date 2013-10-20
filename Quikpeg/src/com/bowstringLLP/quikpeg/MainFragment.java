@@ -9,16 +9,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,154 +28,193 @@ import android.widget.TextView;
 import com.bowstringLLP.quikpeg.MainActivity.RecordsUpdateListener;
 
 public class MainFragment extends Fragment implements RecordsUpdateListener {
-
-	ProgressBar progressBar = null;
+	static View mainView;
+	static MapTabFragment mapFragment;
+	CustomListAdapter adapter;
 	TextView emptyTextView = null;
 	ListView listView = null;
 	ListItemClickListener mListener;
-	CustomListAdapter adapter;
-	Long timeElapsed = (long) 0;
-	
-	public interface ListItemClickListener
-	{
-		public void onListItemClick(int position);
-		public void fetchRecords(boolean shouldRefresh);
-	}
+	ProgressBar progressBar = null;
+	List<Records> records;
+	Long timeElapsed = Long.valueOf(0L);
 
-	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-		adapter = new CustomListAdapter(getActivity());
-		setHasOptionsMenu(true);
-	}
-	
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		try {
-			mListener = (ListItemClickListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement ListItemClickListener");
-		}
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		super.onCreateView(inflater, container, savedInstanceState);
-
-		if (android.os.Build.VERSION.SDK_INT>=android.os.Build.VERSION_CODES.HONEYCOMB) {
-			initializeActionBar();
-		}
-		
-		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_main, container, false);
+	private ListView getListView() {
+		listView = ((ListView) getActivity().findViewById(R.id.list));
+		return listView;
 	}
 
 	@TargetApi(11)
 	private void initializeActionBar() {
 		getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
 	}
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState)
-	{
-		super.onActivityCreated(savedInstanceState);
+
+	private void switchView() {
+		if (mapFragment == null)
+			mapFragment = new MapTabFragment();
+		FragmentTransaction localFragmentTransaction = getFragmentManager()
+				.beginTransaction();
+		localFragmentTransaction.replace(R.id.fragment_container, mapFragment);
+		localFragmentTransaction.commit();
+	}
+
+	public TextView getEmptyTextView() {
+		emptyTextView = ((TextView) getActivity().findViewById(R.id.emptyView));
+		return emptyTextView;
+	}
+
+	public void onActivityCreated(Bundle paramBundle) {
+		super.onActivityCreated(paramBundle);
+
+		View localView = ((LayoutInflater) getActivity().getSystemService(
+				"layout_inflater"))
+				.inflate(R.layout.footer_layout, null, false);
+		
+		getListView().addFooterView(localView, null, false);
 		getListView().setEmptyView(getEmptyTextView());
+
+		MainActivity.recListener = this;
+
+		getListView().setAdapter(this.adapter);
 		mListener.fetchRecords(false);
-		getListView().setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				mListener.onListItemClick(arg2);
+
+		getListView().setOnItemClickListener(
+				new AdapterView.OnItemClickListener() {
+					public void onItemClick(AdapterView<?> paramAdapterView,
+							View paramView, int paramInt, long paramLong) {
+						mListener.onListItemClick(paramInt);
+					}
+				});
+
+		getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
+			public void onScroll(AbsListView paramAbsListView, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+				if ((firstVisibleItem + visibleItemCount == totalItemCount)
+						&& (totalItemCount > visibleItemCount)) {
+					getActivity().findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+					onRecordsUpdated(records, totalItemCount + 20);
+				}
+			}
+
+			public void onScrollStateChanged(AbsListView paramAbsListView,
+					int paramInt) {
 			}
 		});
 	}
-	
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		inflater.inflate(R.menu.main, menu);
-		
-		Intent prefsIntent = new Intent(getActivity(), SettingsActivity.class);
-		MenuItem preferences = menu.findItem(R.id.action_settings);
-		preferences.setIntent(prefsIntent);
 
-		Intent emailIntent = new Intent(Intent.ACTION_SEND);
-		// The intent does not have a URI, so declare the "text/plain" MIME type
-		emailIntent.setType(HTTP.PLAIN_TEXT_TYPE);
-		emailIntent.putExtra(Intent.EXTRA_EMAIL, getResources().getStringArray(R.array.suggestionRecipients)); // recipients
-		emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Suggestion");
-		emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message text");
-		MenuItem suggest = menu.findItem(R.id.Suggestion);
-		suggest.setIntent(emailIntent);
-
-		Intent aboutIntent = new Intent(getActivity(), AboutActivity.class);
-		MenuItem about = menu.findItem(R.id.About);
-		about.setIntent(aboutIntent);
-		
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId())
-		{
-		case R.id.Refresh:
-			mListener.fetchRecords(true);
-			break;
-		case android.R.id.home:
-			getActivity().onBackPressed();
-			break;
-		default:
-			startActivity(item.getIntent());
+	public void onAttach(Activity paramActivity) {
+		super.onAttach(paramActivity);
+		try {
+			mListener = ((ListItemClickListener) paramActivity);
+			return;
+		} catch (ClassCastException localClassCastException) {
 		}
-		return true;
+		throw new ClassCastException(paramActivity.toString()
+				+ " must implement ListItemClickListener");
 	}
 
-	private ListView getListView()
-	{
-		//if(listView == null)
-			listView = (ListView) getActivity().findViewById(R.id.list);
-
-		return listView;
+	public void onCreate(Bundle paramBundle) {
+		super.onCreate(paramBundle);
+		this.adapter = new CustomListAdapter(getActivity());
+		setHasOptionsMenu(true);
+		setRetainInstance(true);
 	}
 
-	@Override
-	public void onRecordsUpdated(List<Records> records) {
-		if(records != null)
-		{
-			adapter.setContent(records);
-			getListView().setAdapter(adapter);
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		  // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.main, menu);
+        
+        Intent prefsIntent = new Intent(getActivity(), SettingsActivity.class);
+        MenuItem preferences = menu.findItem(R.id.action_settings);
+        preferences.setIntent(prefsIntent);
 
-			String str = getActivity().getSharedPreferences("com.bowstringLLP.quikpeg_preferences", Context.MODE_PRIVATE).getString("Mode", "NORMAL");
-			switch(MainActivity.Mode.valueOf(str))
-			{
-			case	NORMAL:
-			case	DAYBEFOREDRY:
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        // The intent does not have a URI, so declare the "text/plain" MIME type
+        emailIntent.setType(HTTP.PLAIN_TEXT_TYPE);
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, getResources().getStringArray(R.array.suggestionRecipients)); // recipients
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Suggestion");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message text");
+        MenuItem suggest = menu.findItem(R.id.Suggestion);
+        suggest.setIntent(emailIntent);
+
+        Intent aboutIntent = new Intent(getActivity(), AboutActivity.class);
+        MenuItem about = menu.findItem(R.id.About);
+        about.setIntent(aboutIntent);
+        
+        super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	public View onCreateView(LayoutInflater paramLayoutInflater,
+			ViewGroup paramViewGroup, Bundle paramBundle) {
+		super.onCreateView(paramLayoutInflater, paramViewGroup, paramBundle);
+		
+		if (Build.VERSION.SDK_INT >= 11)
+			initializeActionBar();
+		
+		if(mainView == null)
+			mainView = paramLayoutInflater.inflate(R.layout.activity_map, paramViewGroup, false);
+        else
+        {
+        	ViewGroup grp = (ViewGroup) mainView.getParent();
+            grp.removeAllViews();
+        }
+        return mainView;
+	}
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+            switch(item.getItemId())
+            {
+            case R.id.Refresh:
+                    mListener.fetchRecords(true);
+                    break;
+            case android.R.id.home:
+                    getActivity().onBackPressed();
+                    break;
+            case R.id.switchView:
+            	switchView();
+            	break;
+            default:
+                    startActivity(item.getIntent());
+            }
+            return true;
+    }
+
+	public void onRecordsUpdated(List<Records> records, int offset) {
+		if (records != null)
+			this.records = records;
+
+		if (this.records != null) {
+			for (int i = this.adapter.getCount(); i < offset; i++)
+				adapter.add(records.get(i));
+
+			String str = getActivity().getSharedPreferences(
+					"com.bowstringLLP.quikpeg_preferences",
+					Context.MODE_PRIVATE).getString("Mode", "NORMAL");
+			switch (MainActivity.Mode.valueOf(str)) {
+			case NORMAL:
+			case DAYBEFOREDRY:
 				getActivity().setTitle(getString(R.string.mainTitle));
 				getActivity().setTitleColor(Color.parseColor("#ffffff"));
 				break;
 
-			case	DRY:
+			case DRY:
 				getActivity().setTitle("DRY DAY");
 				getActivity().setTitleColor(Color.parseColor("#D89020"));
 				break;
 
-			case	LASTGOODSEARCH:
+			case LASTGOODSEARCH:
 				getActivity().setTitle("LAST GOOD SEARCH");
 				getActivity().setTitleColor(Color.parseColor("#D89020"));
 			}
 
-			if(MainActivity.dialog != null)
+			if (MainActivity.dialog != null)
 				MainActivity.dialog.dismiss();
 		}
 	}
 
-	public TextView getEmptyTextView()
-	{
-		//if(emptyTextView == null)
-			emptyTextView = (TextView) getActivity().findViewById(R.id.emptyView);
-		
-		return emptyTextView;
+	public interface ListItemClickListener {
+		public void fetchRecords(boolean paramBoolean);
+
+		public void onListItemClick(int paramInt);
 	}
 }

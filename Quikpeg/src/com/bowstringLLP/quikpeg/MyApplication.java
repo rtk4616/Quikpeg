@@ -1,26 +1,20 @@
 package com.bowstringLLP.quikpeg;
+
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
+import org.acra.sender.HttpSender;
 
 import android.app.Application;
 
-@ReportsCrashes(
-		formKey = "",
-        formUri = "https://bowstringstudio.cloudant.com/acra-quikpeg/_design/acra-storage/_update/report",
-        reportType = org.acra.sender.HttpSender.Type.JSON,
-        httpMethod = org.acra.sender.HttpSender.Method.PUT,
-        formUriBasicAuthLogin="verediseendstedyselyctse",
-        formUriBasicAuthPassword="HbVLg3lkj1JrwaXnRjKpGw74"
-        // Your usual ACRA configuration
-       // mode = ReportingInteractionMode.TOAST,
-        //resToastText = R.string.crash_toast_text,
-	  )
-	  public class MyApplication extends Application {
-	      @Override
-	      public void onCreate() {
-	          super.onCreate();
+@ReportsCrashes(formKey = "", formUri = "https://bowstringstudio.cloudant.com/acra-quikpeg/_design/acra-storage/_update/report", formUriBasicAuthLogin = "verediseendstedyselyctse", formUriBasicAuthPassword = "HbVLg3lkj1JrwaXnRjKpGw74", httpMethod = HttpSender.Method.PUT, reportType = HttpSender.Type.JSON)
+public class MyApplication extends Application {
+	public void onCreate() {
+		super.onCreate();
+		ACRA.init(this);
+	}
+}
 
-	          // The following line triggers the initialization of ACRA
-	          ACRA.init(this);
-	      }
-	  }
+/*
+ * Location: C:\apktool1.5.2\dex2jar-0.0.9.15\quikpeg_dex2jar.jar Qualified
+ * Name: com.bowstringLLP.quikpeg.MyApplication JD-Core Version: 0.6.0
+ */

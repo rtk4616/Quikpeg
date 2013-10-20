@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
-import com.bowstringLLP.quikpeg.R;
 import com.google.analytics.tracking.android.EasyTracker;
 
 public class AboutActivity extends Activity {

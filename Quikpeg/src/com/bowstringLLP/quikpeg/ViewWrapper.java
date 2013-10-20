@@ -3,58 +3,58 @@ package com.bowstringLLP.quikpeg;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.bowstringLLP.quikpeg.R;
 
+public class ViewWrapper
+{
+  View base;
+  TextView distance = null;
+  TextView name = null;
+  TextView openClose = null;
+  TextView region = null;
+  ImageView verifyImage = null;
 
-public class ViewWrapper {
-	View base;
-	TextView name = null;
-	TextView region = null;
-	TextView distance = null;
-	TextView openClose = null;
-	ImageView verifyImage = null;
-	
-	ViewWrapper(View base) {
-		this.base=base;
-	}
+  ViewWrapper(View paramView)
+  {
+    this.base = paramView;
+  }
 
-	TextView getName() {
-		if (name==null) {
-			name=(TextView)base.findViewById(R.id.NameText);
-		}
+  TextView getDistance()
+  {
+    if (this.distance == null)
+      this.distance = ((TextView)this.base.findViewById(2131099679));
+    return this.distance;
+  }
 
-		return(name);
-	}
+  TextView getName()
+  {
+    if (this.name == null)
+      this.name = ((TextView)this.base.findViewById(2131099677));
+    return this.name;
+  }
 
-	TextView getDistance() {
-		if (distance==null) {
-			distance=(TextView)base.findViewById(R.id.DistanceText);
-		}
+  TextView getOpenClose()
+  {
+    if (this.openClose == null)
+      this.openClose = ((TextView)this.base.findViewById(2131099680));
+    return this.openClose;
+  }
 
-		return(distance);
-	}
+  public TextView getRegion()
+  {
+    if (this.region == null)
+      this.region = ((TextView)this.base.findViewById(2131099678));
+    return this.region;
+  }
 
-	TextView getOpenClose() {
-		if (openClose==null) {
-			openClose=(TextView)base.findViewById(R.id.OpenClose);
-		}
-
-		return(openClose);
-	}
-	
-	ImageView getVerifyImage() {
-		if (verifyImage==null) {
-			verifyImage=(ImageView)base.findViewById(R.id.verifyImage);
-		}
-
-		return(verifyImage);
-	}
-
-	public TextView getRegion() {
-		if (region==null) {
-			region=(TextView)base.findViewById(R.id.RegionText);
-		}
-		
-		return region;
-	}
+  ImageView getVerifyImage()
+  {
+    if (this.verifyImage == null)
+      this.verifyImage = ((ImageView)this.base.findViewById(2131099676));
+    return this.verifyImage;
+  }
 }
+
+/* Location:           C:\apktool1.5.2\dex2jar-0.0.9.15\quikpeg_dex2jar.jar
+ * Qualified Name:     com.bowstringLLP.quikpeg.ViewWrapper
+ * JD-Core Version:    0.6.0
+ */

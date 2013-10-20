@@ -1,17 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-	<item
+
+    <item
         android:id="@+id/map_refresh"
         android:icon="@drawable/navigationrefresh"
         android:orderInCategory="1"
         android:showAsAction="ifRoom"
         android:title="Refresh"/>
-    
+
     <group
         android:id="@+id/group"
         android:checkableBehavior="single"
         android:orderInCategory="2"
         android:visible="true" >
-        
         <item
             android:id="@+id/map"
             android:showAsAction="never"

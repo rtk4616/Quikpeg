@@ -3,14 +3,19 @@ package com.bowstringLLP.quikpeg;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-public class DryDay implements Comparable<DryDay> {
+public class DryDay
+  implements Comparable<DryDay>
+{
+  Calendar holidayDate;
+  String holidayName;
 
-	String holidayName;
-	Calendar holidayDate;
-	
-	@Override
-	public int compareTo(DryDay arg0) {
-		Calendar currentDate = new GregorianCalendar();
-			return currentDate.compareTo(arg0.holidayDate);
-	}
+  public int compareTo(DryDay paramDryDay)
+  {
+    return new GregorianCalendar().compareTo(paramDryDay.holidayDate);
+  }
 }
+
+/* Location:           C:\apktool1.5.2\dex2jar-0.0.9.15\quikpeg_dex2jar.jar
+ * Qualified Name:     com.bowstringLLP.quikpeg.DryDay
+ * JD-Core Version:    0.6.0
+ */
