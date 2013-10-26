@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -46,6 +47,15 @@ public class MapActivity extends FragmentActivity{
 			initializeActionBar();
 		}
 		
+		if (MainActivity.dialog == null) {
+			MainActivity.dialog = ProgressDialog.show(
+					this, null, "Loading");
+			MainActivity.dialog.setCancelable(true);
+			MainActivity.dialog
+					.setCanceledOnTouchOutside(false);
+		} else if (MainActivity.dialog.isShowing() == false)
+			MainActivity.dialog.show();
+		
 		record = (Records) getIntent().getSerializableExtra(MainActivity.STORE_RECORD);
 		currentLatitude = getIntent().getDoubleExtra(MainActivity.LOCATION_LATITUDE,0);
 		currentLongitude = getIntent().getDoubleExtra(MainActivity.LOCATION_LONGITUDE,0);
@@ -62,8 +72,6 @@ public class MapActivity extends FragmentActivity{
 		{
 			e.printStackTrace();
 		}
-
-		MainActivity.dialog.dismiss();
 	}
 
 	@TargetApi(11)
@@ -166,6 +174,7 @@ public class MapActivity extends FragmentActivity{
 
 			try
 			{
+				System.setProperty("http.keepAlive", "false");
 				url = new URL("http://maps.googleapis.com/maps/api/directions/json?origin="+locOrigin.getLatitude()+","+locOrigin.getLongitude()+"&destination="+record.latitude.toString()+","+record.longitude.toString()+"&mode=driving&sensor=true");
 				urlConnection=(HttpURLConnection)url.openConnection();
 				urlConnection.setRequestMethod("GET");
@@ -221,6 +230,10 @@ public class MapActivity extends FragmentActivity{
 		}catch(Exception e)
 		{
 			e.printStackTrace();
+		}finally
+		{
+			if(MainActivity.dialog!=null)
+				MainActivity.dialog.dismiss();
 		}
 	}
 

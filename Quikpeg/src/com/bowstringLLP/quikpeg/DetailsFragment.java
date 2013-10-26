@@ -1,18 +1,19 @@
 package com.bowstringLLP.quikpeg;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Display;
 import android.view.InflateException;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -22,12 +23,13 @@ public class DetailsFragment extends Fragment {
 	View detailsView;
 	NetworkStatus netStatus;
 	Records record;
+	Bitmap portBitmap, landBitmap;
 
 	public void onCreate(Bundle paramBundle) {
 		super.onCreate(paramBundle);
 		setRetainInstance(true);
 		this.netStatus = new NetworkStatus(getActivity());
-	}
+		}
 
 	public View onCreateView(LayoutInflater paramLayoutInflater,
 			ViewGroup paramViewGroup, Bundle paramBundle) {
@@ -52,44 +54,69 @@ public class DetailsFragment extends Fragment {
 
 	public void onActivityCreated(Bundle paramBundle) {
 		super.onActivityCreated(paramBundle);
-
-		Display localDisplay = getActivity().getWindowManager()
-				.getDefaultDisplay();
-		Point localPoint = new Point();
-		Bitmap localBitmap;
-		FrameLayout localFrameLayout;
-
-		if (Build.VERSION.SDK_INT < 13) {
-			localPoint.x = localDisplay.getWidth();
-			localPoint.y = localDisplay.getHeight();
-		} else
-			localDisplay.getSize(localPoint);
-
-		localBitmap = Bitmap.createScaledBitmap(
-				((BitmapDrawable) getResources().getDrawable(
-						R.drawable.aboutpagebackground)).getBitmap(),
-				localPoint.x, localPoint.y, false);
-
-		localFrameLayout = (FrameLayout) getActivity().findViewById(
-				R.id.detailsLayout);
-
-		if (Build.VERSION.SDK_INT >= 16)
-			localFrameLayout.setBackground(new BitmapDrawable(getResources(),
-					localBitmap));
+		
+		if (MainActivity.dialog == null) {
+			MainActivity.dialog = ProgressDialog.show(
+					getActivity(), null, "Loading");
+			MainActivity.dialog.setCancelable(true);
+			MainActivity.dialog
+					.setCanceledOnTouchOutside(false);
+		} else if (MainActivity.dialog.isShowing() == false)
+			MainActivity.dialog.show();
+		
+		if(getActivity().getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+			if(portBitmap == null)
+				getScreenBackground(portBitmap);
+			else
+				setScreenBackground(portBitmap);
 		else
-			localFrameLayout.setBackgroundDrawable(new BitmapDrawable(
-					getResources(), localBitmap));
+			if(landBitmap == null)
+				getScreenBackground(landBitmap);
+			else
+				setScreenBackground(landBitmap);
 
 		if (getArguments() != null)
 			updateDetailView((Records) getArguments().getSerializable(
 					"com.bowstringLLP.oneclickalcohol.STORE_RECORD"));
 	}
+		
+	private void getScreenBackground(Bitmap bitmap)
+	{
+		new AsyncTask<Void, Void, Bitmap>()
+				{
+			Bitmap bitmap;
+			@Override
+			protected Bitmap doInBackground(Void... params) {
+				Display localDisplay = getActivity().getWindowManager().getDefaultDisplay();
+				Point localPoint = new Point();
 
-	public void onCreateOptionsMenu(Menu paramMenu,
-			MenuInflater paramMenuInflater) {
-		paramMenuInflater.inflate(R.menu.details, paramMenu);
+				if (Build.VERSION.SDK_INT < 13) {
+					localPoint.x = localDisplay.getWidth();
+					localPoint.y = localDisplay.getHeight();
+				} else
+					localDisplay.getSize(localPoint);
+
+				bitmap = BitmapModifier.decodeSampledBitmapFromResource(getResources(), R.drawable.aboutpagebackground, localPoint.x, localPoint.y);
+				
+				setScreenBackground(bitmap);
+				
+				return null;
+			}
+				}.execute();
 	}
-
+	
+	private void setScreenBackground(Bitmap bitmap)
+	{
+		FrameLayout localFrameLayout = (FrameLayout) getActivity().findViewById(R.id.detailsLayout);
+		
+		if (Build.VERSION.SDK_INT >= 16)
+			localFrameLayout.setBackground(new BitmapDrawable(getResources(),
+					bitmap));
+		else
+			localFrameLayout.setBackgroundDrawable(new BitmapDrawable(
+					getResources(), bitmap));
+	}
+	
 	public void updateDetailView(Records record) {
 		try {
 			TextView text = (TextView) getActivity()
@@ -173,6 +200,10 @@ public class DetailsFragment extends Fragment {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally
+		{
+			if(MainActivity.dialog!=null)
+				MainActivity.dialog.dismiss();
 		}
 	}
 }

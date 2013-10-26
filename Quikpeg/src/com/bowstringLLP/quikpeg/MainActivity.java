@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
@@ -23,26 +24,23 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
-public class MainActivity extends FragmentActivity implements NoticeDialogListener, ListItemClickListener {
-	
+public class MainActivity extends FragmentActivity implements
+		NoticeDialogListener, ListItemClickListener {
+
 	public static final String LOCATION_LATITUDE = "com.bowstringLLP.oneclickalcohol.LOCATION_LATITUDE";
 	public static final String LOCATION_LONGITUDE = "com.bowstringLLP.oneclickalcohol.LOCATION_LONGITUDE";
 	public static final String STORE_RECORD = "com.bowstringLLP.oneclickalcohol.STORE_RECORD";
 	static ProgressDialog dialog;
 	static boolean isLocationUpdated = false;
-	static int offset;
+	int offset = 20;
 	static RecordsUpdateListener recListener;
 	static SharedPreferences settings;
-	static Long timeElapsed = Long.valueOf(0L);
 	LocationManager locationManager;
-	MainFragment mainFrag;
-	static Mode mode;
-	RecordBuilder builder;
-	Location currentLocation;
-	DetailsFragment detailsFrag;
+	static RecordBuilder builder;
+	static Location currentLocation;
 	boolean isTimerFinished = false;
-	List<Records> records;
-	Records selectedRecord;
+	static List<Records> records;
+	static Records selectedRecord;
 	CountDownTimer timer;
 
 	static enum Mode {
@@ -52,29 +50,33 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		if(android.os.Build.VERSION.SDK_INT > 10)
+			getOverflowMenu();
 		
-		getOverflowMenu();
-		this.builder = new RecordBuilder(this);
-		this.mainFrag = ((MainFragment) getSupportFragmentManager().findFragmentByTag("MAIN"));
-		if (this.mainFrag == null) {
-			offset = 20;
-			
-			settings = PreferenceManager.getDefaultSharedPreferences(this);
-			settings.registerOnSharedPreferenceChangeListener(this.prefListener);
+		if(builder==null)
+			builder = new RecordBuilder(getApplicationContext());
+		
+		MainFragment mainFrag = ((MainFragment) getSupportFragmentManager()
+				.findFragmentByTag("MAIN"));
+		if (mainFrag == null) {
+			settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+			settings.registerOnSharedPreferenceChangeListener(prefListener);
 			settings.edit().putString("Mode", Mode.NORMAL.toString()).apply();
-			
+
 			fetchRecords(true);
-			MainFragment localMainFragment = new MainFragment();
+			mainFrag = new MainFragment();
 			FragmentTransaction localFragmentTransaction = getSupportFragmentManager()
 					.beginTransaction();
-			localFragmentTransaction.add(R.id.fragment_container, localMainFragment, "MAIN");
+			localFragmentTransaction.add(R.id.fragment_container,
+					mainFrag, "MAIN");
 			localFragmentTransaction.addToBackStack(null);
 			localFragmentTransaction.commit();
 		}
 	}
 
 	public void onDialogContinueClick(DialogFragment paramDialogFragment) {
-		this.builder.readGoodRecords();
+		builder.readGoodRecords();
 		setRecordList(settings.getBoolean("Status", true));
 	}
 
@@ -87,47 +89,82 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 	}
 
 	@Override
-    public void onListItemClick(int position) {
-            selectedRecord = records.get(position);
-            detailsFrag = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
+	public void onListItemClick(int position) {
+		selectedRecord = records.get(position);
+		DetailsFragment detailsFrag = (DetailsFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.details_fragment);
 
-            if (detailsFrag != null) {
-                    // If article frag is available, we're in two-pane layout...
+		if (detailsFrag != null) {
+			// If article frag is available, we're in two-pane layout...
 
-                    // Call a method in the ArticleFragment to update its content
-                    detailsFrag.updateDetailView(selectedRecord);
-            } else {
-                    // Otherwise, we're in the one-pane layout and must swap frags...
+			// Call a method in the ArticleFragment to update its content
+			detailsFrag.updateDetailView(selectedRecord);
+		} else {
+			// Otherwise, we're in the one-pane layout and must swap frags...
 
-                    // Create fragment and give it an argument for the selected article
-                    detailsFrag = new DetailsFragment();
-                    Bundle args = new Bundle();
-                    args.putSerializable(STORE_RECORD, selectedRecord);
-                    detailsFrag.setArguments(args);
-                    setTitle(selectedRecord.name);
-                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			// Create fragment and give it an argument for the selected article
+			detailsFrag = new DetailsFragment();
+			Bundle args = new Bundle();
+			args.putSerializable(STORE_RECORD, selectedRecord);
+			detailsFrag.setArguments(args);
+			setTitle(selectedRecord.name);
+			FragmentTransaction transaction = getSupportFragmentManager()
+					.beginTransaction();
 
-                    // Replace whatever is in the fragment_container view with this fragment,
-                    // and add the transaction to the back stack so the user can navigate back
-                    transaction.replace(R.id.fragment_container, detailsFrag);
-                    transaction.addToBackStack(null);
+			// Replace whatever is in the fragment_container view with this
+			// fragment,
+			// and add the transaction to the back stack so the user can
+			// navigate back
+			transaction.replace(R.id.fragment_container, detailsFrag);
+			transaction.addToBackStack(null);
 
-                    // Commit the transaction
-                    transaction.commit();
-            }
-    }                        
-	
+			// Commit the transaction
+			transaction.commit();
+		}
+	}
+
 	LocationListener listener = new LocationListener() {
 		public void onLocationChanged(Location location) {
 			if (timer != null)
+			{
 				timer.cancel();
-			
+				timer=null;
+			}			
+
 			isLocationUpdated = true;
-			
+
 			if (isBetterLocation(location, currentLocation)) {
 				currentLocation = location;
-				builder.buildRecordList(currentLocation);
-				setRecordList(settings.getBoolean("Status", true));
+
+				new AsyncTask<Void, Void, Void>() {
+
+					@Override
+					protected void onPreExecute() {
+						super.onPreExecute();
+						if (MainActivity.dialog == null) {
+							MainActivity.dialog = ProgressDialog.show(
+									getParent(), null, "Loading");
+							MainActivity.dialog.setCancelable(true);
+							MainActivity.dialog
+									.setCanceledOnTouchOutside(false);
+						} else if (MainActivity.dialog.isShowing() == false)
+							MainActivity.dialog.show();
+					}
+
+					@Override
+					protected Void doInBackground(Void... params) {
+						builder.buildRecordList(currentLocation);
+						return null;
+					}
+
+					@Override
+					protected void onPostExecute(Void result) {
+						super.onPostExecute(result);
+						setRecordList(settings.getBoolean("Status", true));
+					}
+
+				}.execute();
+
 			}
 		}
 
@@ -146,7 +183,7 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 		public void onSharedPreferenceChanged(SharedPreferences prefs,
 				String key) {
 			if (key == "Mode") {
-				mode = Mode.valueOf(prefs.getString("Mode", "NORMAL"));
+				Mode mode = Mode.valueOf(prefs.getString("Mode", "NORMAL"));
 				switch (mode) {
 				case NORMAL:
 					Toast.makeText(getApplicationContext(), "Normal Mode",
@@ -184,6 +221,7 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 				&& builder.getMasterRecordList().size() != 0)
 			builder.writeGoodRecords();
 
+		dialog = null;
 		// EasyTracker.getInstance().activityStop(this);
 	}
 
@@ -196,7 +234,7 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 	private void getOverflowMenu() {
 
 		try {
-			ViewConfiguration config = ViewConfiguration.get(this);
+			ViewConfiguration config = ViewConfiguration.get(getApplicationContext());
 			Field menuKeyField = ViewConfiguration.class
 					.getDeclaredField("sHasPermanentMenuKey");
 			if (menuKeyField != null) {
@@ -243,33 +281,32 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 
 	public void fetchRecords(boolean shouldRefresh) {
 		if (shouldRefresh) {
-			dialog = ProgressDialog.show(this, null, "Loading...");
-			dialog.setCancelable(true);
-			
+
 			offset = 20;
 			locationManager = ((LocationManager) getSystemService("location"));
 			isLocationUpdated = false;
 			findLocation(listener);
-			
+
 			timer = new CountDownTimer(60000, 1000) {
-				
+
 				public void onFinish() {
 					isTimerFinished = true;
 					locationManager.removeUpdates(listener);
 					showNoticeDialog(getString(R.string.offTheGrid));
-					
-					if (settings.getString("Mode", "NORMAL") != MainActivity.Mode.DRY.toString())
-						settings.edit().putString("Mode",Mode.LASTGOODSEARCH.toString());
+
+					if (settings.getString("Mode", "NORMAL") != MainActivity.Mode.DRY
+							.toString())
+						settings.edit().putString("Mode",
+								Mode.LASTGOODSEARCH.toString());
 				}
 
 				public void onTick(long paramLong) {
-					if (dialog == null)
+					if (dialog == null || dialog.isShowing() == false)
 						cancel();
 				}
 			};
-		}
-		else
-			recListener.onRecordsUpdated(this.records, offset);
+		} else
+			recListener.onRecordsUpdated(records, offset);
 	}
 
 	public void findLocation(LocationListener paramLocationListener) {
@@ -279,59 +316,69 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 				null);
 	}
 
-	public boolean isBetterLocation(Location location, Location currentBestLocation) {
-        final int TWO_MINUTES = 1000 * 60 * 2;
-        
-    if (currentBestLocation == null) {
-        // A new location is always better than no location
-        return true;
-    }
+	public boolean isBetterLocation(Location location,
+			Location currentBestLocation) {
+		final int TWO_MINUTES = 1000 * 60 * 2;
 
-    // Check whether the new location fix is newer or older
-    long timeDelta = location.getTime() - currentBestLocation.getTime();
-    boolean isSignificantlyNewer = timeDelta > TWO_MINUTES;
-    boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
-    boolean isNewer = timeDelta > 0;
+		if (currentBestLocation == null) {
+			// A new location is always better than no location
+			return true;
+		}
 
-    // If it's been more than two minutes since the current location, use the new location
-    // because the user has likely moved
-    if (isSignificantlyNewer) {
-        return true;
-    // If the new location is more than two minutes older, it must be worse
-    } else if (isSignificantlyOlder) {
-        return false;
-    }
+		// Check whether the new location fix is newer or older
+		long timeDelta = location.getTime() - currentBestLocation.getTime();
+		boolean isSignificantlyNewer = timeDelta > TWO_MINUTES;
+		boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
+		boolean isNewer = timeDelta > 0;
 
-    // Check whether the new location fix is more or less accurate
-    int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
-    boolean isLessAccurate = accuracyDelta > 0;
-    boolean isMoreAccurate = accuracyDelta < 0;
-    boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+		// If it's been more than two minutes since the current location, use
+		// the new location
+		// because the user has likely moved
+		if (isSignificantlyNewer) {
+			return true;
+			// If the new location is more than two minutes older, it must be
+			// worse
+		} else if (isSignificantlyOlder) {
+			return false;
+		}
 
-    // Check if the old and new location are from the same provider
-    boolean isFromSameProvider = isSameProvider(location.getProvider(),
-            currentBestLocation.getProvider());
+		// Check whether the new location fix is more or less accurate
+		int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation
+				.getAccuracy());
+		boolean isLessAccurate = accuracyDelta > 0;
+		boolean isMoreAccurate = accuracyDelta < 0;
+		boolean isSignificantlyLessAccurate = accuracyDelta > 200;
 
-    // Determine location quality using a combination of timeliness and accuracy
-    if (isMoreAccurate) {
-        return true;
-    } else if (isNewer && !isLessAccurate) {
-        return true;
-    } else if (isNewer && !isSignificantlyLessAccurate && isFromSameProvider) {
-        return true;
-    }
-    return false;
-}
+		// Check if the old and new location are from the same provider
+		boolean isFromSameProvider = isSameProvider(location.getProvider(),
+				currentBestLocation.getProvider());
 
-	public void onClickMap(View view)
-    {
-            dialog = ProgressDialog.show(this, null, "Loading...");
-            Intent intent = new Intent(this, MapActivity.class);
-            intent.putExtra(STORE_RECORD, selectedRecord);
-            intent.putExtra(LOCATION_LATITUDE, getIntent().getDoubleExtra(LOCATION_LATITUDE,currentLocation.getLatitude()));
-            intent.putExtra(LOCATION_LONGITUDE, getIntent().getDoubleExtra(LOCATION_LONGITUDE,currentLocation.getLongitude()));
-            startActivity(intent);
-    }
+		// Determine location quality using a combination of timeliness and
+		// accuracy
+		if (isMoreAccurate) {
+			return true;
+		} else if (isNewer && !isLessAccurate) {
+			return true;
+		} else if (isNewer && !isSignificantlyLessAccurate
+				&& isFromSameProvider) {
+			return true;
+		}
+		return false;
+	}
+
+	public void onClickMap(View view) {
+		Intent intent = new Intent(this, MapActivity.class);
+		intent.putExtra(STORE_RECORD, selectedRecord);
+		intent.putExtra(
+				LOCATION_LATITUDE,
+				getIntent().getDoubleExtra(LOCATION_LATITUDE,
+						currentLocation.getLatitude()));
+		intent.putExtra(
+				LOCATION_LONGITUDE,
+				getIntent().getDoubleExtra(LOCATION_LONGITUDE,
+						currentLocation.getLongitude()));
+		startActivity(intent);
+	}
 
 	public void showNoticeDialog(String paramString) {
 		DialogFragment dialog = NoticeDialogFragment.newInstance(paramString);
@@ -339,7 +386,6 @@ public class MainActivity extends FragmentActivity implements NoticeDialogListen
 	}
 
 	public interface RecordsUpdateListener {
-		public void onRecordsUpdated(List<Records> paramList,
-				int paramInt);
+		public void onRecordsUpdated(List<Records> paramList, int paramInt);
 	}
 }

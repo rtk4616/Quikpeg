@@ -6,6 +6,7 @@ import org.apache.http.protocol.HTTP;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -29,7 +30,6 @@ import com.bowstringLLP.quikpeg.MainActivity.RecordsUpdateListener;
 
 public class MainFragment extends Fragment implements RecordsUpdateListener {
 	static View mainView;
-	static MapTabFragment mapFragment;
 	CustomListAdapter adapter;
 	TextView emptyTextView = null;
 	ListView listView = null;
@@ -49,6 +49,8 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 	}
 
 	private void switchView() {
+		MapTabFragment mapFragment = (MapTabFragment) getActivity().getSupportFragmentManager().findFragmentByTag("MAIN");
+		
 		if (mapFragment == null)
 			mapFragment = new MapTabFragment();
 		FragmentTransaction localFragmentTransaction = getFragmentManager()
@@ -68,13 +70,22 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 		View localView = ((LayoutInflater) getActivity().getSystemService(
 				"layout_inflater"))
 				.inflate(R.layout.footer_layout, null, false);
-		
+
 		getListView().addFooterView(localView, null, false);
+		
+		if (MainActivity.dialog == null) {
+			MainActivity.dialog = ProgressDialog.show(getActivity(), null, "Loading");
+			MainActivity.dialog.setCancelable(true);
+			MainActivity.dialog
+					.setCanceledOnTouchOutside(false);
+		} else if (MainActivity.dialog.isShowing() == false)
+			MainActivity.dialog.show();
+		
 		getListView().setEmptyView(getEmptyTextView());
 
 		MainActivity.recListener = this;
 
-		getListView().setAdapter(this.adapter);
+		getListView().setAdapter(adapter);
 		mListener.fetchRecords(false);
 
 		getListView().setOnItemClickListener(
@@ -86,11 +97,13 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 				});
 
 		getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
-			public void onScroll(AbsListView paramAbsListView, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount) {
+			public void onScroll(AbsListView paramAbsListView,
+					int firstVisibleItem, int visibleItemCount,
+					int totalItemCount) {
 				if ((firstVisibleItem + visibleItemCount == totalItemCount)
 						&& (totalItemCount > visibleItemCount)) {
-					getActivity().findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+					getActivity().findViewById(android.R.id.empty)
+							.setVisibility(View.VISIBLE);
 					onRecordsUpdated(records, totalItemCount + 20);
 				}
 			}
@@ -120,72 +133,74 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 	}
 
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		  // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.main, menu);
-        
-        Intent prefsIntent = new Intent(getActivity(), SettingsActivity.class);
-        MenuItem preferences = menu.findItem(R.id.action_settings);
-        preferences.setIntent(prefsIntent);
+		// Inflate the menu; this adds items to the action bar if it is present.
+		inflater.inflate(R.menu.main, menu);
 
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        // The intent does not have a URI, so declare the "text/plain" MIME type
-        emailIntent.setType(HTTP.PLAIN_TEXT_TYPE);
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, getResources().getStringArray(R.array.suggestionRecipients)); // recipients
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Suggestion");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message text");
-        MenuItem suggest = menu.findItem(R.id.Suggestion);
-        suggest.setIntent(emailIntent);
+		Intent prefsIntent = new Intent(getActivity(), SettingsActivity.class);
+		MenuItem preferences = menu.findItem(R.id.action_settings);
+		preferences.setIntent(prefsIntent);
 
-        Intent aboutIntent = new Intent(getActivity(), AboutActivity.class);
-        MenuItem about = menu.findItem(R.id.About);
-        about.setIntent(aboutIntent);
-        
-        super.onCreateOptionsMenu(menu, inflater);
+		Intent emailIntent = new Intent(Intent.ACTION_SEND);
+		// The intent does not have a URI, so declare the "text/plain" MIME type
+		emailIntent.setType(HTTP.PLAIN_TEXT_TYPE);
+		emailIntent.putExtra(Intent.EXTRA_EMAIL,
+				getResources().getStringArray(R.array.suggestionRecipients)); // recipients
+		emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Suggestion");
+		emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message text");
+		MenuItem suggest = menu.findItem(R.id.Suggestion);
+		suggest.setIntent(emailIntent);
+
+		Intent aboutIntent = new Intent(getActivity(), AboutActivity.class);
+		MenuItem about = menu.findItem(R.id.About);
+		about.setIntent(aboutIntent);
+
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	public View onCreateView(LayoutInflater paramLayoutInflater,
 			ViewGroup paramViewGroup, Bundle paramBundle) {
 		super.onCreateView(paramLayoutInflater, paramViewGroup, paramBundle);
-		
+
 		if (Build.VERSION.SDK_INT >= 11)
 			initializeActionBar();
-		
-		if(mainView == null)
-			mainView = paramLayoutInflater.inflate(R.layout.activity_map, paramViewGroup, false);
-        else
-        {
-        	ViewGroup grp = (ViewGroup) mainView.getParent();
-            grp.removeAllViews();
-        }
-        return mainView;
+
+		if (mainView == null)
+			mainView = paramLayoutInflater.inflate(R.layout.fragment_main,
+					paramViewGroup, false);
+		else {
+			ViewGroup grp = (ViewGroup) mainView.getParent();
+			grp.removeAllViews();
+		}
+		return mainView;
 	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-            switch(item.getItemId())
-            {
-            case R.id.Refresh:
-                    mListener.fetchRecords(true);
-                    break;
-            case android.R.id.home:
-                    getActivity().onBackPressed();
-                    break;
-            case R.id.switchView:
-            	switchView();
-            	break;
-            default:
-                    startActivity(item.getIntent());
-            }
-            return true;
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.Refresh:
+			mListener.fetchRecords(true);
+			break;
+		case android.R.id.home:
+			getActivity().onBackPressed();
+			break;
+		case R.id.switchView:
+			switchView();
+			break;
+		default:
+			startActivity(item.getIntent());
+		}
+		return true;
+	}
 
 	public void onRecordsUpdated(List<Records> records, int offset) {
 		if (records != null)
 			this.records = records;
 
 		if (this.records != null) {
-			for (int i = this.adapter.getCount(); i < offset; i++)
-				adapter.add(records.get(i));
+			for (int i = this.adapter.getCount(); i < offset && i<this.records.size(); i++)
+				adapter.add(this.records.get(i));
+
+			adapter.notifyDataSetChanged();
 
 			String str = getActivity().getSharedPreferences(
 					"com.bowstringLLP.quikpeg_preferences",

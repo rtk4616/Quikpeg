@@ -151,22 +151,17 @@ public class RecordBuilder{
 						rec.sundayClose = cursor.getInt(cursor.getColumnIndex("SundayClose"));				
 						rec.distance = f;
 						masterRecordList.add(rec);
-						if(rec.timeTillOpenClose()>0)
-							openRecordList.add(rec);
 					}
 				}while(cursor.moveToNext());
 				cursor.close();
 
 				if(currentLocation!=null)
-				{
 					Collections.sort(masterRecordList);
-					Collections.sort(openRecordList);
-				}
 				
 				for(int i=0; i<100 && i<masterRecordList.size(); i++)
 				{
 					rec = masterRecordList.get(i);
-					rec.distance = currentLocation == null ? null : getDistanceFromLocation(rec.latitude, rec.latitude, currentLocation);
+					rec.distance = currentLocation == null ? null : getDistanceFromLocation(rec.latitude, rec.longitude, currentLocation);
 					if(rec.timeTillOpenClose()>0)
 						openRecordList.add(rec);
 				}
@@ -267,6 +262,7 @@ public class RecordBuilder{
 			HttpURLConnection urlConnection= null;
 			URL url = null;
 
+			System.setProperty("http.keepAlive", "false");
 			url = new URL("http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude() + "&destinations=" + latitude + "," + longitude + "&mode=driving&sensor=true");
 			urlConnection=(HttpURLConnection)url.openConnection();
 			urlConnection.setRequestMethod("GET");
@@ -280,7 +276,6 @@ public class RecordBuilder{
 			//} catch (Exception e) {
 			//	e.printStackTrace();
 			//}
-
 
 			String temp, response = "";
 			while((temp = bReader.readLine()) != null){

@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.http.protocol.HTTP;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -29,8 +30,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapTabFragment extends Fragment implements
 MainActivity.RecordsUpdateListener {
 
-	static MainFragment mainFragment;
-	static View mapView;
+	View mapView;
 	MainFragment.ListItemClickListener mListener;
 	GoogleMap mMap = null;
 	List<Records> records;
@@ -38,21 +38,18 @@ MainActivity.RecordsUpdateListener {
 	private void setUpMapIfNeeded() {
 		// Do a null check to confirm that we have not already instantiated the
 		// map.
-		if (mMap == null) {
+		if (mMap == null)
 			mMap = ((SupportMapFragment) getFragmentManager().findFragmentById(
 					R.id.map)).getMap();
-			// Check if we were successful in obtaining the map.
-			if (mMap != null) {
-				// The Map is verified. It is now safe to manipulate the map.
-
-			}
-		}
 		mMap.setMyLocationEnabled(true);
 	}
 
 	private void switchView() {
+		MainFragment mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentByTag("MAIN");
+		
 		if (mainFragment == null)
 			mainFragment = new MainFragment();
+		
 		FragmentTransaction localFragmentTransaction = getFragmentManager()
 				.beginTransaction();
 		localFragmentTransaction.replace(R.id.fragment_container, mainFragment);
@@ -61,6 +58,16 @@ MainActivity.RecordsUpdateListener {
 
 	public void onActivityCreated(Bundle paramBundle) {
 		super.onActivityCreated(paramBundle);
+		
+		if (MainActivity.dialog == null) {
+			MainActivity.dialog = ProgressDialog.show(
+					getActivity(), null, "Loading");
+			MainActivity.dialog.setCancelable(true);
+			MainActivity.dialog
+					.setCanceledOnTouchOutside(false);
+		} else if (MainActivity.dialog.isShowing() == false)
+			MainActivity.dialog.show();
+		
 		setUpMapIfNeeded();
 		MainActivity.recListener = this;
 		this.mListener.fetchRecords(false);
@@ -148,7 +155,7 @@ MainActivity.RecordsUpdateListener {
 		case R.id.Refresh:
 			mListener.fetchRecords(true);
 			break;
-		case R.id.switchView:
+		case R.id.mapSwitchView:
 			switchView();
 			break;
 		default:
@@ -210,8 +217,3 @@ MainActivity.RecordsUpdateListener {
 		}
 	}
 }
-
-/*
- * Location: C:\apktool1.5.2\dex2jar-0.0.9.15\quikpeg_dex2jar.jar Qualified
- * Name: com.bowstringLLP.quikpeg.MapTabFragment JD-Core Version: 0.6.0
- */
