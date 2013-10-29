@@ -10,6 +10,7 @@ import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -132,8 +133,7 @@ public class MainActivity extends FragmentActivity implements
 			}			
 
 			isLocationUpdated = true;
-
-			if (isBetterLocation(location, currentLocation)) {
+			
 				currentLocation = location;
 
 				new AsyncTask<Void, Void, Void>() {
@@ -166,7 +166,6 @@ public class MainActivity extends FragmentActivity implements
 				}.execute();
 
 			}
-		}
 
 		public void onProviderDisabled(String paramString) {
 		}
@@ -221,13 +220,17 @@ public class MainActivity extends FragmentActivity implements
 				&& builder.getMasterRecordList().size() != 0)
 			builder.writeGoodRecords();
 
+		if(dialog!=null)
+		{	dialog.dismiss();
 		dialog = null;
+		}
 		// EasyTracker.getInstance().activityStop(this);
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+
 		builder.closeDatabase();
 	}
 
@@ -252,11 +255,11 @@ public class MainActivity extends FragmentActivity implements
 		getActionBar().setDisplayHomeAsUpEnabled(paramBoolean);
 	}
 
-	private boolean isSameProvider(String paramString1, String paramString2) {
+/*	private boolean isSameProvider(String paramString1, String paramString2) {
 		if (paramString1 == null)
 			return paramString2 == null;
 		return paramString1.equals(paramString2);
-	}
+	}*/
 
 	private void setRecordList(boolean prefrence) {
 
@@ -316,7 +319,7 @@ public class MainActivity extends FragmentActivity implements
 				null);
 	}
 
-	public boolean isBetterLocation(Location location,
+/*	public boolean isBetterLocation(Location location,
 			Location currentBestLocation) {
 		final int TWO_MINUTES = 1000 * 60 * 2;
 
@@ -364,7 +367,7 @@ public class MainActivity extends FragmentActivity implements
 			return true;
 		}
 		return false;
-	}
+	}*/
 
 	public void onClickMap(View view) {
 		Intent intent = new Intent(this, MapActivity.class);

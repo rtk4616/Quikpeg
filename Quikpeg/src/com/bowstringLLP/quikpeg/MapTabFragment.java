@@ -45,10 +45,7 @@ MainActivity.RecordsUpdateListener {
 	}
 
 	private void switchView() {
-		MainFragment mainFragment = (MainFragment) getActivity().getSupportFragmentManager().findFragmentByTag("MAIN");
-		
-		if (mainFragment == null)
-			mainFragment = new MainFragment();
+		MainFragment mainFragment = new MainFragment();
 		
 		FragmentTransaction localFragmentTransaction = getFragmentManager()
 				.beginTransaction();

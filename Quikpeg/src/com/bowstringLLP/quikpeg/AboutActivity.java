@@ -45,8 +45,6 @@ public class AboutActivity extends Activity {
 
 	private void setScreenBackground() {
 		new AsyncTask<Void, Void, Bitmap>() {
-			Bitmap bitmap;
-
 			@Override
 			protected Bitmap doInBackground(Void... params) {
 				Display localDisplay = getWindowManager().getDefaultDisplay();
@@ -58,19 +56,19 @@ public class AboutActivity extends Activity {
 				} else
 					localDisplay.getSize(localPoint);
 
-				bitmap = BitmapModifier.decodeSampledBitmapFromResource(
+				return BitmapModifier.decodeSampledBitmapFromResource(
 						getResources(), R.drawable.aboutpagebackground,
 						localPoint.x, localPoint.y);
+			}
+			protected void onPostExecute(Bitmap result) {
+			FrameLayout localFrameLayout = (FrameLayout) findViewById(R.id.aboutLayout);
 
-				FrameLayout localFrameLayout = (FrameLayout) findViewById(R.id.aboutLayout);
-
-				if (Build.VERSION.SDK_INT >= 16)
-					localFrameLayout.setBackground(new BitmapDrawable(
-							getResources(), bitmap));
-				else
-					localFrameLayout.setBackgroundDrawable(new BitmapDrawable(
-							getResources(), bitmap));
-				return null;
+			if (Build.VERSION.SDK_INT >= 16)
+				localFrameLayout.setBackground(new BitmapDrawable(
+						getResources(), result));
+			else
+				localFrameLayout.setBackgroundDrawable(new BitmapDrawable(
+						getResources(), result));
 			}
 		}.execute();
 	}

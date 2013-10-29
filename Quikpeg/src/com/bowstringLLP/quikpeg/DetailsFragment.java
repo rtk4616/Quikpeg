@@ -23,13 +23,14 @@ public class DetailsFragment extends Fragment {
 	View detailsView;
 	NetworkStatus netStatus;
 	Records record;
-	Bitmap portBitmap, landBitmap;
+MyApplication myApp;
 
 	public void onCreate(Bundle paramBundle) {
 		super.onCreate(paramBundle);
 		setRetainInstance(true);
 		this.netStatus = new NetworkStatus(getActivity());
-		}
+		myApp = (MyApplication) getActivity().getApplication();
+	}
 
 	public View onCreateView(LayoutInflater paramLayoutInflater,
 			ViewGroup paramViewGroup, Bundle paramBundle) {
@@ -54,40 +55,36 @@ public class DetailsFragment extends Fragment {
 
 	public void onActivityCreated(Bundle paramBundle) {
 		super.onActivityCreated(paramBundle);
-		
+
 		if (MainActivity.dialog == null) {
-			MainActivity.dialog = ProgressDialog.show(
-					getActivity(), null, "Loading");
+			MainActivity.dialog = ProgressDialog.show(getActivity(), null,
+					"Loading");
 			MainActivity.dialog.setCancelable(true);
-			MainActivity.dialog
-					.setCanceledOnTouchOutside(false);
+			MainActivity.dialog.setCanceledOnTouchOutside(false);
 		} else if (MainActivity.dialog.isShowing() == false)
 			MainActivity.dialog.show();
-		
-		if(getActivity().getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-			if(portBitmap == null)
-				getScreenBackground(portBitmap);
+
+		if (getActivity().getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+			if (myApp.getPortBitmap() == null)
+				getScreenBackground();
 			else
-				setScreenBackground(portBitmap);
+				setScreenBackground(myApp.getPortBitmap());
+		else if (myApp.getLandBitmap() == null)
+			getScreenBackground();
 		else
-			if(landBitmap == null)
-				getScreenBackground(landBitmap);
-			else
-				setScreenBackground(landBitmap);
+			setScreenBackground(myApp.getLandBitmap());
 
 		if (getArguments() != null)
 			updateDetailView((Records) getArguments().getSerializable(
 					"com.bowstringLLP.oneclickalcohol.STORE_RECORD"));
 	}
-		
-	private void getScreenBackground(Bitmap bitmap)
-	{
-		new AsyncTask<Void, Void, Bitmap>()
-				{
-			Bitmap bitmap;
+
+	private void getScreenBackground() {
+		new AsyncTask<Void, Void, Bitmap>() {
 			@Override
 			protected Bitmap doInBackground(Void... params) {
-				Display localDisplay = getActivity().getWindowManager().getDefaultDisplay();
+				Display localDisplay = getActivity().getWindowManager()
+						.getDefaultDisplay();
 				Point localPoint = new Point();
 
 				if (Build.VERSION.SDK_INT < 13) {
@@ -96,19 +93,25 @@ public class DetailsFragment extends Fragment {
 				} else
 					localDisplay.getSize(localPoint);
 
-				bitmap = BitmapModifier.decodeSampledBitmapFromResource(getResources(), R.drawable.aboutpagebackground, localPoint.x, localPoint.y);
-				
-				setScreenBackground(bitmap);
-				
-				return null;
+				return BitmapModifier.decodeSampledBitmapFromResource(
+						getResources(), R.drawable.aboutpagebackground,
+						localPoint.x, localPoint.y);
 			}
-				}.execute();
+
+			protected void onPostExecute(Bitmap result) {
+				if (getActivity().getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+					myApp.setPortBitmap(result);
+				else
+					myApp.setLandBitmap(result);
+				setScreenBackground(result);
+			}
+		}.execute();
 	}
-	
-	private void setScreenBackground(Bitmap bitmap)
-	{
-		FrameLayout localFrameLayout = (FrameLayout) getActivity().findViewById(R.id.detailsLayout);
-		
+
+	private void setScreenBackground(Bitmap bitmap) {
+		FrameLayout localFrameLayout = (FrameLayout) getActivity()
+				.findViewById(R.id.detailsLayout);
+
 		if (Build.VERSION.SDK_INT >= 16)
 			localFrameLayout.setBackground(new BitmapDrawable(getResources(),
 					bitmap));
@@ -116,7 +119,7 @@ public class DetailsFragment extends Fragment {
 			localFrameLayout.setBackgroundDrawable(new BitmapDrawable(
 					getResources(), bitmap));
 	}
-	
+
 	public void updateDetailView(Records record) {
 		try {
 			TextView text = (TextView) getActivity()
@@ -200,9 +203,8 @@ public class DetailsFragment extends Fragment {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally
-		{
-			if(MainActivity.dialog!=null)
+		} finally {
+			if (MainActivity.dialog != null)
 				MainActivity.dialog.dismiss();
 		}
 	}

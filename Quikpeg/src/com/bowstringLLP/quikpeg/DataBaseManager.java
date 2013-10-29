@@ -73,11 +73,11 @@ public class DataBaseManager extends SQLiteOpenHelper {
 				context.deleteFile(DB_NAME);
 				copyDataBase();
 			}
-			openDataBase();
 		}catch (Exception e) 
 		{
 			e.printStackTrace();
 		}
+		openDataBase();
 	}
 
 	/**
@@ -174,7 +174,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
 	 * @throws android.database.SQLException sql exception
 	 */
 	public long insert(String table, ContentValues values) throws SQLException {
-		return mDataBase.insert(table, null, values);
+return mDataBase.insert(table, null, values);
 	}
 
 	/**
@@ -185,9 +185,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
 	 * @throws android.database.SQLException sql exception
 	 */
 	public void delete(String table, String where) throws SQLException {
-
 		mDataBase.delete(table, where, null);
-
 	}
 
 	/**

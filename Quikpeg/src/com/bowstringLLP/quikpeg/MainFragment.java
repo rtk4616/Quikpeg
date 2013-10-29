@@ -49,10 +49,8 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 	}
 
 	private void switchView() {
-		MapTabFragment mapFragment = (MapTabFragment) getActivity().getSupportFragmentManager().findFragmentByTag("MAIN");
+		MapTabFragment mapFragment = new MapTabFragment();
 		
-		if (mapFragment == null)
-			mapFragment = new MapTabFragment();
 		FragmentTransaction localFragmentTransaction = getFragmentManager()
 				.beginTransaction();
 		localFragmentTransaction.replace(R.id.fragment_container, mapFragment);
