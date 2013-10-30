@@ -9,7 +9,7 @@
         android:title="Refresh"/>
     <item
         android:id="@+id/mapSwitchView"
-        android:icon="@drawable/list_view"
+        android:icon="@drawable/collections_view_as_list"
         android:orderInCategory="2"
         android:showAsAction="ifRoom"
         android:title="Switch View"/>

@@ -3,14 +3,10 @@ package com.bowstringLLP.quikpeg;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import com.bowstringLLP.quikpeg.MainFragment.ListItemClickListener;
-import com.bowstringLLP.quikpeg.NoticeDialogFragment.NoticeDialogListener;
-
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -24,6 +20,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
+
+import com.bowstringLLP.quikpeg.MainFragment.ListItemClickListener;
+import com.bowstringLLP.quikpeg.NoticeDialogFragment.NoticeDialogListener;
 
 public class MainActivity extends FragmentActivity implements
 		NoticeDialogListener, ListItemClickListener {
@@ -141,14 +140,13 @@ public class MainActivity extends FragmentActivity implements
 					@Override
 					protected void onPreExecute() {
 						super.onPreExecute();
-						if (MainActivity.dialog == null) {
-							MainActivity.dialog = ProgressDialog.show(
-									getParent(), null, "Loading");
+						
+						if (MainActivity.dialog == null || (MainActivity.dialog != null && MainActivity.dialog.isShowing() == false)) {
+							MainActivity.dialog = ProgressDialog.show(getParent(), null, "Loading");
 							MainActivity.dialog.setCancelable(true);
 							MainActivity.dialog
 									.setCanceledOnTouchOutside(false);
-						} else if (MainActivity.dialog.isShowing() == false)
-							MainActivity.dialog.show();
+						}
 					}
 
 					@Override
@@ -207,7 +205,7 @@ public class MainActivity extends FragmentActivity implements
 							Toast.LENGTH_LONG).show();
 					break;
 				}
-			} else
+			} else if(key == "Status")
 				setRecordList(prefs.getBoolean(key, true));
 		}
 	};
@@ -284,7 +282,13 @@ public class MainActivity extends FragmentActivity implements
 
 	public void fetchRecords(boolean shouldRefresh) {
 		if (shouldRefresh) {
-
+			
+			if (MainActivity.dialog == null || (MainActivity.dialog != null && MainActivity.dialog.isShowing() == false)) {
+				MainActivity.dialog = ProgressDialog.show(this, null, "Loading");
+				MainActivity.dialog.setCancelable(true);
+				MainActivity.dialog
+						.setCanceledOnTouchOutside(false);
+			}
 			offset = 20;
 			locationManager = ((LocationManager) getSystemService("location"));
 			isLocationUpdated = false;
@@ -307,7 +311,7 @@ public class MainActivity extends FragmentActivity implements
 					if (dialog == null || dialog.isShowing() == false)
 						cancel();
 				}
-			};
+			}.start();
 		} else
 			recListener.onRecordsUpdated(records, offset);
 	}
@@ -318,56 +322,6 @@ public class MainActivity extends FragmentActivity implements
 		this.locationManager.requestSingleUpdate("gps", paramLocationListener,
 				null);
 	}
-
-/*	public boolean isBetterLocation(Location location,
-			Location currentBestLocation) {
-		final int TWO_MINUTES = 1000 * 60 * 2;
-
-		if (currentBestLocation == null) {
-			// A new location is always better than no location
-			return true;
-		}
-
-		// Check whether the new location fix is newer or older
-		long timeDelta = location.getTime() - currentBestLocation.getTime();
-		boolean isSignificantlyNewer = timeDelta > TWO_MINUTES;
-		boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
-		boolean isNewer = timeDelta > 0;
-
-		// If it's been more than two minutes since the current location, use
-		// the new location
-		// because the user has likely moved
-		if (isSignificantlyNewer) {
-			return true;
-			// If the new location is more than two minutes older, it must be
-			// worse
-		} else if (isSignificantlyOlder) {
-			return false;
-		}
-
-		// Check whether the new location fix is more or less accurate
-		int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation
-				.getAccuracy());
-		boolean isLessAccurate = accuracyDelta > 0;
-		boolean isMoreAccurate = accuracyDelta < 0;
-		boolean isSignificantlyLessAccurate = accuracyDelta > 200;
-
-		// Check if the old and new location are from the same provider
-		boolean isFromSameProvider = isSameProvider(location.getProvider(),
-				currentBestLocation.getProvider());
-
-		// Determine location quality using a combination of timeliness and
-		// accuracy
-		if (isMoreAccurate) {
-			return true;
-		} else if (isNewer && !isLessAccurate) {
-			return true;
-		} else if (isNewer && !isSignificantlyLessAccurate
-				&& isFromSameProvider) {
-			return true;
-		}
-		return false;
-	}*/
 
 	public void onClickMap(View view) {
 		Intent intent = new Intent(this, MapActivity.class);

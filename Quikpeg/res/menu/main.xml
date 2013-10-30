@@ -27,7 +27,7 @@
         android:title="About"/>
     <item
         android:id="@+id/switchView"
-        android:icon="@drawable/map_view"
+android:icon="@drawable/location_map"
         android:orderInCategory="2"
         android:showAsAction="ifRoom"
         android:title="Switch View"/>

@@ -163,6 +163,9 @@ public class DataBaseManager extends SQLiteOpenHelper {
 	 * @throws android.database.SQLException sql exception
 	 */
 	public Cursor select(String query) throws Exception {
+		if(mDataBase == null)
+			openDataBase();
+		
 		return mDataBase.rawQuery(query, null);
 	}
 
@@ -174,6 +177,8 @@ public class DataBaseManager extends SQLiteOpenHelper {
 	 * @throws android.database.SQLException sql exception
 	 */
 	public long insert(String table, ContentValues values) throws SQLException {
+		if(mDataBase == null)
+			openDataBase();
 return mDataBase.insert(table, null, values);
 	}
 
@@ -185,6 +190,8 @@ return mDataBase.insert(table, null, values);
 	 * @throws android.database.SQLException sql exception
 	 */
 	public void delete(String table, String where) throws SQLException {
+		if(mDataBase == null)
+			openDataBase();
 		mDataBase.delete(table, where, null);
 	}
 
@@ -196,6 +203,9 @@ return mDataBase.insert(table, null, values);
 	 * @param where  - WHERE clause, if pass null, all rows will be updated
 	 */
 	public void update(String table, ContentValues values, String where) {
+		if(mDataBase == null)
+			openDataBase();
+		
 		mDataBase.update(table, values, where, null);
 	}
 

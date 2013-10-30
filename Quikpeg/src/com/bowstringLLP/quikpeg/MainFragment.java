@@ -71,15 +71,12 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 
 		getListView().addFooterView(localView, null, false);
 		
-		if (MainActivity.dialog == null) {
+		if (MainActivity.dialog == null || (MainActivity.dialog != null && MainActivity.dialog.isShowing() == false)) {
 			MainActivity.dialog = ProgressDialog.show(getActivity(), null, "Loading");
 			MainActivity.dialog.setCancelable(true);
 			MainActivity.dialog
 					.setCanceledOnTouchOutside(false);
-		} else if (MainActivity.dialog.isShowing() == false)
-			MainActivity.dialog.show();
-		
-		getListView().setEmptyView(getEmptyTextView());
+		}
 
 		MainActivity.recListener = this;
 
@@ -98,6 +95,11 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 			public void onScroll(AbsListView paramAbsListView,
 					int firstVisibleItem, int visibleItemCount,
 					int totalItemCount) {
+				if(totalItemCount>=100)
+				{
+					getActivity().findViewById(android.R.id.empty).setVisibility(View.GONE);
+					return;
+				}
 				if ((firstVisibleItem + visibleItemCount == totalItemCount)
 						&& (totalItemCount > visibleItemCount)) {
 					getActivity().findViewById(android.R.id.empty)
@@ -193,6 +195,8 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 	public void onRecordsUpdated(List<Records> records, int offset) {
 		if (records != null)
 			this.records = records;
+		
+		getListView().setEmptyView(getEmptyTextView());
 
 		if (this.records != null) {
 			for (int i = this.adapter.getCount(); i < offset && i<this.records.size(); i++)

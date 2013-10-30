@@ -12,7 +12,7 @@
         android:layout_height="fill_parent"
         android:gravity="center"
         android:padding="5.0dip"
-        android:text="Loading more videos..."
+        android:text="Loading more stores..."
         android:visibility="gone" />
 
 </LinearLayout>

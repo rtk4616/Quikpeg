@@ -23,12 +23,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapTabFragment extends Fragment implements
-MainActivity.RecordsUpdateListener {
+		MainActivity.RecordsUpdateListener {
 
 	View mapView;
 	MainFragment.ListItemClickListener mListener;
@@ -46,7 +47,7 @@ MainActivity.RecordsUpdateListener {
 
 	private void switchView() {
 		MainFragment mainFragment = new MainFragment();
-		
+
 		FragmentTransaction localFragmentTransaction = getFragmentManager()
 				.beginTransaction();
 		localFragmentTransaction.replace(R.id.fragment_container, mainFragment);
@@ -55,16 +56,16 @@ MainActivity.RecordsUpdateListener {
 
 	public void onActivityCreated(Bundle paramBundle) {
 		super.onActivityCreated(paramBundle);
-		
-		if (MainActivity.dialog == null) {
-			MainActivity.dialog = ProgressDialog.show(
-					getActivity(), null, "Loading");
+
+		if (MainActivity.dialog == null
+				|| (MainActivity.dialog != null && MainActivity.dialog
+						.isShowing() == false)) {
+			MainActivity.dialog = ProgressDialog.show(getActivity(), null,
+					"Loading");
 			MainActivity.dialog.setCancelable(true);
-			MainActivity.dialog
-					.setCanceledOnTouchOutside(false);
-		} else if (MainActivity.dialog.isShowing() == false)
-			MainActivity.dialog.show();
-		
+			MainActivity.dialog.setCanceledOnTouchOutside(false);
+		}
+
 		setUpMapIfNeeded();
 		MainActivity.recListener = this;
 		this.mListener.fetchRecords(false);
@@ -117,17 +118,15 @@ MainActivity.RecordsUpdateListener {
 			ViewGroup paramViewGroup, Bundle paramBundle) {
 		super.onCreateView(paramLayoutInflater, paramViewGroup, paramBundle);
 
-		if(mapView == null)
-        {
-                mapView = paramLayoutInflater.inflate(R.layout.activity_map, paramViewGroup, false);
-                return mapView;
-        }
-        else
-        {
-                ViewGroup grp = (ViewGroup) mapView.getParent();
-                grp.removeAllViews();
-                return mapView;
-        }
+		if (mapView == null) {
+			mapView = paramLayoutInflater.inflate(R.layout.activity_map,
+					paramViewGroup, false);
+			return mapView;
+		} else {
+			ViewGroup grp = (ViewGroup) mapView.getParent();
+			grp.removeAllViews();
+			return mapView;
+		}
 	}
 
 	@Override
@@ -163,53 +162,73 @@ MainActivity.RecordsUpdateListener {
 
 	@Override
 	public void onRecordsUpdated(List<Records> records, int offset) {
-		if(records != null)
-		{
+		if (records != null) {
 			this.records = records;
-			for(int i=0; i<records.size(); i++)
-			{
-				mMap.addMarker(new MarkerOptions()
-			    .position(new LatLng(records.get(i).latitude, records.get(i).longitude))
-			    .title(records.get(i).name)
-			    .snippet(records.get(i).address));
+			for (int i = 0; i < records.size(); i++) {
+				if (records.get(i).timeTillOpenClose() > 0
+						&& getActivity().getSharedPreferences(
+								"com.bowstringLLP.quikpeg_preferences",
+								Context.MODE_PRIVATE).getString("Mode",
+								"NORMAL") != "DRY")
+					mMap.addMarker(new MarkerOptions()
+							.position(
+									new LatLng(records.get(i).latitude, records
+											.get(i).longitude))
+							.title(records.get(i).name)
+							.snippet(records.get(i).address)
+							.icon(BitmapDescriptorFactory
+									.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+				else
+					mMap.addMarker(new MarkerOptions()
+							.position(
+									new LatLng(records.get(i).latitude, records
+											.get(i).longitude))
+							.title(records.get(i).name)
+							.snippet(records.get(i).address)
+							.icon(BitmapDescriptorFactory
+									.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 			}
 
 			mMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
 
 				@Override
 				public void onInfoWindowClick(Marker marker) {
-					for(int i=0; i<MapTabFragment.this.records.size(); i++)
-						if(MapTabFragment.this.records.get(i).name.matches(marker.getTitle()) && MapTabFragment.this.records.get(i).address.matches(marker.getSnippet()))
-						{
+					for (int i = 0; i < MapTabFragment.this.records.size(); i++)
+						if (MapTabFragment.this.records.get(i).name
+								.matches(marker.getTitle())
+								&& MapTabFragment.this.records.get(i).address
+										.matches(marker.getSnippet())) {
 							mListener.onListItemClick(i);
 							break;
 						}
 				}
 			});
-			
-			String str = getActivity().getSharedPreferences("com.bowstringLLP.quikpeg_preferences", Context.MODE_PRIVATE).getString("Mode", "NORMAL");
-			switch(MainActivity.Mode.valueOf(str))
-			{
+
+			String str = getActivity().getSharedPreferences(
+					"com.bowstringLLP.quikpeg_preferences",
+					Context.MODE_PRIVATE).getString("Mode", "NORMAL");
+			switch (MainActivity.Mode.valueOf(str)) {
 			case NORMAL:
 			case DAYBEFOREDRY:
 				getActivity().setTitle(getString(R.string.mainTitle));
 				getActivity().setTitleColor(Color.parseColor("#ffffff"));
 				break;
 
-			case	DRY:
+			case DRY:
 				getActivity().setTitle("DRY DAY");
 				getActivity().setTitleColor(Color.parseColor("#D89020"));
 				break;
 
-			case	LASTGOODSEARCH:
+			case LASTGOODSEARCH:
 				getActivity().setTitle("LAST GOOD SEARCH");
 				getActivity().setTitleColor(Color.parseColor("#D89020"));
 			}
-			
-			LatLng loc = new LatLng(records.get(0).latitude, records.get(0).longitude);
+
+			LatLng loc = new LatLng(records.get(0).latitude,
+					records.get(0).longitude);
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 14));
-			
-			if(MainActivity.dialog != null)
+
+			if (MainActivity.dialog != null)
 				MainActivity.dialog.dismiss();
 		}
 	}
