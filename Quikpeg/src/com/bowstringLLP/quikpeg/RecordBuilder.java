@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,7 +32,6 @@ public class RecordBuilder{
 	SQLiteCursor cursor;
 	private List<Records> masterRecordList, openRecordList;
 	DryDay dryDay;
-	Records rec;
 	Context context;
 
 	public RecordBuilder(Context context)
@@ -114,6 +114,8 @@ public class RecordBuilder{
 					openRecordList = new ArrayList<Records>();
 				else
 					openRecordList.clear();
+				
+				Records rec;
 
 				do
 				{
@@ -149,7 +151,7 @@ public class RecordBuilder{
 						rec.saturdayClose = cursor.getInt(cursor.getColumnIndex("SaturdayClose"));
 						rec.sundayOpen = cursor.getInt(cursor.getColumnIndex("SundayOpen"));
 						rec.sundayClose = cursor.getInt(cursor.getColumnIndex("SundayClose"));				
-						rec.distance = f;
+						rec.distance = f/1000;
 						masterRecordList.add(rec);
 					}
 				}while(cursor.moveToNext());
@@ -158,18 +160,15 @@ public class RecordBuilder{
 				if(currentLocation!=null)
 					Collections.sort(masterRecordList);
 				
-				for(int i=0; i<100 && i<masterRecordList.size(); i++)
-				{
-					rec = masterRecordList.get(i);
-					rec.distance = currentLocation == null ? null : getDistanceFromLocation(rec.latitude, rec.longitude, currentLocation);
-					if(rec.timeTillOpenClose()>0)
-						openRecordList.add(rec);
-				}
+				getDistanceFromLocation(masterRecordList, currentLocation);
 				
 				if(currentLocation!=null)
-				{
 					Collections.sort(masterRecordList);
-					Collections.sort(openRecordList);
+				
+				for(int i=0; i<masterRecordList.size() && i<80; i++)
+				{
+					if(masterRecordList.get(i).timeTillOpenClose()>0)
+							openRecordList.add(masterRecordList.get(i));
 				}
 			}
 		}catch(Exception e)
@@ -237,7 +236,7 @@ public class RecordBuilder{
 		return dryDay;
 	}
 
-	private Float getDistanceFromLocation(double latitude, double longitude, Location currentLocation)
+	private void getDistanceFromLocation(List<Records> recordList, Location currentLocation)
 	{	
 		try
 		{
@@ -263,13 +262,23 @@ public class RecordBuilder{
 			URL url = null;
 
 			System.setProperty("http.keepAlive", "false");
-			url = new URL("http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude() + "&destinations=" + latitude + "," + longitude + "&mode=driving&sensor=true");
+			//url = new URL("http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude() + "&destinations=" + recordList.get(0).latitude + "," + recordList.get(0).longitude + "&mode=driving&sensor=true");
+			String str = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude() + "&destinations=";
+			
+			int i;
+			for(i=0; i<recordList.size() && i<80; i++)
+			{
+				str +=  recordList.get(i).latitude + "," + recordList.get(i).longitude + URLEncoder.encode("|", "UTF-8");
+			}			
+			str +=  recordList.get(i).latitude + "," + recordList.get(i).longitude;
+			
+			str += "&mode=driving&sensor=true";
+			url = new URL(str);
 			urlConnection=(HttpURLConnection)url.openConnection();
 			urlConnection.setRequestMethod("GET");
 			//urlConnection.setDoOutput(true);
 			//urlConnection.setDoInput(true);
 			//urlConnection.connect();
-
 			//InputStream inStream = urlConnection.getInputStream();
 			//try{
 			BufferedReader bReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -292,18 +301,14 @@ public class RecordBuilder{
 			JSONArray rows = object.getJSONArray("rows");
 			JSONArray elements = rows.getJSONObject(0).getJSONArray("elements");
 			JSONObject distance;
-			String[] sDistance = new String[20];
-			for (int i=0; i<elements.length(); i++)
+			for (int j=0; j<elements.length(); j++)
 			{
-				distance = elements.getJSONObject(i).getJSONObject("distance");
-				sDistance[i] = distance.getString("text");
+				distance = elements.getJSONObject(j).getJSONObject("distance");
+				recordList.get(j).distance = Float.parseFloat(distance.getString("text").split(" ")[0]);
 			}
-
-			return Float.parseFloat(sDistance[0].split(" ")[0]);
 		}catch(Exception e)
 		{
 			e.printStackTrace();
-			return null;
 		}
 	}		
 

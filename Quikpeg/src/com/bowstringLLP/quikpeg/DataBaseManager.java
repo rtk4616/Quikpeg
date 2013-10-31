@@ -222,7 +222,10 @@ return mDataBase.insert(table, null, values);
 	public synchronized void close() {
 
 		if (mDataBase != null)
+		{
 			mDataBase.close();
+			mDataBase = null;
+		}
 
 		super.close();
 

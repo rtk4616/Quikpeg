@@ -1,5 +1,8 @@
 package com.bowstringLLP.quikpeg;
 
+import com.google.android.gms.maps.GoogleMap;
+
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -14,6 +17,9 @@ import android.support.v4.app.Fragment;
 import android.view.Display;
 import android.view.InflateException;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -23,15 +29,21 @@ public class DetailsFragment extends Fragment {
 	View detailsView;
 	NetworkStatus netStatus;
 	Records record;
-MyApplication myApp;
+ MyApplication myApp;
 
 	public void onCreate(Bundle paramBundle) {
 		super.onCreate(paramBundle);
 		setRetainInstance(true);
+		setHasOptionsMenu(true);
 		this.netStatus = new NetworkStatus(getActivity());
 		myApp = (MyApplication) getActivity().getApplication();
 	}
 
+	@TargetApi(11)
+	private void initializeActionBar() {
+		getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+	}
+	
 	public View onCreateView(LayoutInflater paramLayoutInflater,
 			ViewGroup paramViewGroup, Bundle paramBundle) {
 		super.onCreateView(paramLayoutInflater, paramViewGroup, paramBundle);
@@ -63,7 +75,11 @@ MyApplication myApp;
 			MainActivity.dialog.setCanceledOnTouchOutside(false);
 		} else if (MainActivity.dialog.isShowing() == false)
 			MainActivity.dialog.show();
-
+		
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+			initializeActionBar();
+		}
+		
 		if (getActivity().getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 			if (myApp.getPortBitmap() == null)
 				getScreenBackground();
@@ -78,7 +94,33 @@ MyApplication myApp;
 			updateDetailView((Records) getArguments().getSerializable(
 					"com.bowstringLLP.oneclickalcohol.STORE_RECORD"));
 	}
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			// This ID represents the Home or Up button. In the case of this
+			// activity, the Up button is shown. Use NavUtils to allow users
+			// to navigate up one level in the application structure. For
+			// more details, see the Navigation pattern on Android Design:
+			//
+			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
+			//
+			getActivity().getSupportFragmentManager().popBackStack();/*
+							 * if(getSupportFragmentManager().getBackStackEntryCount
+							 * ()>0) getSupportFragmentManager().popBackStack();
+							 */
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
 	private void getScreenBackground() {
 		new AsyncTask<Void, Void, Bitmap>() {
 			@Override
@@ -119,7 +161,7 @@ MyApplication myApp;
 			localFrameLayout.setBackgroundDrawable(new BitmapDrawable(
 					getResources(), bitmap));
 	}
-
+	
 	public void updateDetailView(Records record) {
 		try {
 			TextView text = (TextView) getActivity()

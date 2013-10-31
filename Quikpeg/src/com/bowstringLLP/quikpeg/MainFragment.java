@@ -95,7 +95,7 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 			public void onScroll(AbsListView paramAbsListView,
 					int firstVisibleItem, int visibleItemCount,
 					int totalItemCount) {
-				if(totalItemCount>=100)
+				if(totalItemCount>60)
 				{
 					getActivity().findViewById(android.R.id.empty).setVisibility(View.GONE);
 					return;
@@ -181,7 +181,7 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 			mListener.fetchRecords(true);
 			break;
 		case android.R.id.home:
-			getActivity().onBackPressed();
+			getActivity().finish();
 			break;
 		case R.id.switchView:
 			switchView();

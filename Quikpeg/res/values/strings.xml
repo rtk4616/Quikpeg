@@ -6,8 +6,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_details">DetailsActivity</string>
     <string name="title_activity_map">MapActivity</string>
-    <string name="updateDate">22/07/2013</string>
-    <string name="offTheGrid">You\'re off the grid.\n\nDo you wanna continue to Offline Mode?</string>
+    <string name="updateDate">22/10/2013</string>
+    <string name="offTheGrid">You\'re off the grid.\n\nDo you want to continue to Offline Mode?</string>
     <string name="storesUnavailable">No stores available in your location. We\'re constantly updating our database and we will soon help you find a store near you.</string>
     <string name="locRecUnavailable">Sorry, even we cannot help you get drunk without your location</string>
     <string name="storesClosed">Please wait for liquor strores to open....</string>
@@ -21,5 +21,5 @@
     <string name="title_activity_main_fragment">MainFragment</string>
     <string name="title_activity_details_fragment">DetailsFragment</string>
     <string name="title_activity_about">AboutActivity</string>
-     <string name="twitterLink"><u>Follow us on Twitter:\n@Quickpeg</u></string> 
+     <string name="twitterLink"><u>Follow us on Twitter:\n@Quikpeg</u></string> 
 </resources>

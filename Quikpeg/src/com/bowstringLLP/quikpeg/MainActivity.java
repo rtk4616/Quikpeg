@@ -30,6 +30,7 @@ public class MainActivity extends FragmentActivity implements
 	public static final String LOCATION_LATITUDE = "com.bowstringLLP.oneclickalcohol.LOCATION_LATITUDE";
 	public static final String LOCATION_LONGITUDE = "com.bowstringLLP.oneclickalcohol.LOCATION_LONGITUDE";
 	public static final String STORE_RECORD = "com.bowstringLLP.oneclickalcohol.STORE_RECORD";
+	
 	static ProgressDialog dialog;
 	static boolean isLocationUpdated = false;
 	int offset = 20;

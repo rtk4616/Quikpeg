@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:layout_height="fill_parent" >
 
+    <com.google.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="a1526111d1a8c50"
+        ads:loadAdOnCreate="true" />
+    
     <ListView
         android:id="@+id/list"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:dividerHeight="2.0dip"
+        android:layout_below="@id/adView"
+        android:dividerHeight="2.0dp"
         android:drawSelectorOnTop="false"
         android:listSelector="@drawable/dialog"
         android:visibility="gone" />
-    
-    <com.google.ads.AdView
-        android:id="@+id/adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/list"
-        ads:adSize="SMART_BANNER"
-        ads:adUnitId="a1526111d1a8c50"
-        ads:loadAdOnCreate="true"
-        ads:testDevices="TEST_EMULATOR, faef38a2c635a978" />
     
     <TextView
         android:id="@+id/emptyView"

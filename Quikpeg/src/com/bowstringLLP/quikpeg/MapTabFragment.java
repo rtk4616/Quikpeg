@@ -39,10 +39,15 @@ public class MapTabFragment extends Fragment implements
 	private void setUpMapIfNeeded() {
 		// Do a null check to confirm that we have not already instantiated the
 		// map.
-		if (mMap == null)
-			mMap = ((SupportMapFragment) getFragmentManager().findFragmentById(
-					R.id.map)).getMap();
-		mMap.setMyLocationEnabled(true);
+
+		if (mMap == null) {
+			SupportMapFragment frag = (SupportMapFragment) getActivity()
+					.getSupportFragmentManager().findFragmentById(R.id.map);
+			if (frag != null)
+				mMap = frag.getMap();
+		}
+		if(mMap!=null)
+			mMap.setMyLocationEnabled(true);
 	}
 
 	private void switchView() {
@@ -117,16 +122,26 @@ public class MapTabFragment extends Fragment implements
 	public View onCreateView(LayoutInflater paramLayoutInflater,
 			ViewGroup paramViewGroup, Bundle paramBundle) {
 		super.onCreateView(paramLayoutInflater, paramViewGroup, paramBundle);
-
-		if (mapView == null) {
+		Fragment frag = getActivity().getSupportFragmentManager().findFragmentById(R.id.map);
+		if (frag == null)
 			mapView = paramLayoutInflater.inflate(R.layout.activity_map,
 					paramViewGroup, false);
-			return mapView;
-		} else {
-			ViewGroup grp = (ViewGroup) mapView.getParent();
-			grp.removeAllViews();
-			return mapView;
+		else
+		{
+			mapView = frag.getView();
+			if(mapView==null)
+				mapView = paramLayoutInflater.inflate(R.layout.activity_map,
+						paramViewGroup, false);
+			else
+			{
+				ViewGroup grp = (ViewGroup) mapView.getParent();
+				grp.removeAllViews();
+			}
 		}
+		
+		setUpMapIfNeeded();
+		return mapView;
+		
 	}
 
 	@Override
@@ -137,7 +152,7 @@ public class MapTabFragment extends Fragment implements
 
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			getActivity().onBackPressed();
+			getActivity().finish();
 			break;
 		case R.id.satellite:
 			mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
@@ -231,5 +246,11 @@ public class MapTabFragment extends Fragment implements
 			if (MainActivity.dialog != null)
 				MainActivity.dialog.dismiss();
 		}
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		mapView = null;
 	}
 }

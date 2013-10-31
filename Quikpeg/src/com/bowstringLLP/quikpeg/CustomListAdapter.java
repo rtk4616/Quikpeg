@@ -56,11 +56,11 @@ public class CustomListAdapter extends ArrayAdapter<Records>{
 				wrapper.getDistance().setEnabled(true);
 				if(getItem(position).distance<1)
 				{
-					int f = (int) (getItem(position).distance * 1000);
-					wrapper.getDistance().setText(f + " m");
+					float f = (float) (getItem(position).distance * 1000);
+					wrapper.getDistance().setText(String.format("%.2f", f) + " m");
 				}
 				else
-					wrapper.getDistance().setText(getItem(position).distance.toString() + " km");
+					wrapper.getDistance().setText(String.format("%.2f", getItem(position).distance) + " km");
 			}
 			else
 				wrapper.getDistance().setText("Unknown");
