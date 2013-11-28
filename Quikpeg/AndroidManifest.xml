@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bowstringLLP.quikpeg"
     android:installLocation="auto"
-    android:versionCode="10"
-    android:versionName="2.0" >
+    android:versionCode="11"
+    android:versionName="2.1" >
 
     <uses-feature
         android:glEsVersion="0x20000"
@@ -11,7 +11,7 @@
 
     <uses-sdk
         android:minSdkVersion="10"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -34,7 +34,7 @@
         <uses-library android:name="com.google.android.maps" />
 
         <activity
-            android:name="com.bowstringLLP.quikpeg.MainActivity"
+            android:name=".MainActivity"
             android:label="Quikpeg" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,21 +48,21 @@
             android:value="AIzaSyBXF-KR2EGRdMKITtHMWTJCOpVq4KE7eBc" />
 
         <activity
-            android:name="com.bowstringLLP.quikpeg.MapActivity"
+            android:name=".MapActivity"
             android:label="@string/title_activity_map" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.bowstringLLP.oneclickalcohol.MainActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
-            android:name="com.bowstringLLP.quikpeg.SettingsActivity"
+            android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.bowstringLLP.oneclickalcohol.MainActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
-            android:name="com.bowstringLLP.quikpeg.AboutActivity"
+            android:name=".AboutActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_about"
             android:theme="@style/FullscreenTheme"
