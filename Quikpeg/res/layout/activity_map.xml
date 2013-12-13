@@ -7,13 +7,14 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
     
-    <com.google.ads.AdView
+    <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
+            ads:adSize="SMART_BANNER"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        ads:adSize="SMART_BANNER"
         ads:adUnitId="a1526111d1a8c50"
-        ads:loadAdOnCreate="true" />
+        ads:loadAdOnCreate="true"
+     ads:testDevices="TEST_EMULATOR, faef38a2c635a978" />
     
     <fragment
         android:id="@+id/map"

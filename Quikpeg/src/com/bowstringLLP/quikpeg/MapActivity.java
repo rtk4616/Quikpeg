@@ -23,6 +23,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -84,6 +86,14 @@ public class MapActivity extends FragmentActivity {
 	protected void onStart() {
 		super.onStart();
 		EasyTracker.getInstance().activityStart(this);
+			
+			AdView adView = (AdView) findViewById(R.id.adView);
+			AdRequest request = new AdRequest.Builder()
+		    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+		    .addTestDevice("faef38a2c635a978")  // My Galaxy Nexus test phone
+		    .build();
+			
+			adView.loadAd(request);
 	}
 
 	@Override

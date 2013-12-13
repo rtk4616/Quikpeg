@@ -1,7 +1,9 @@
 package com.bowstringLLP.quikpeg;
 
-import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -65,6 +67,20 @@ public class DetailsFragment extends Fragment {
 		}
 	}
 
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onViewCreated(view, savedInstanceState);
+		
+		AdView adView = (AdView) getActivity().findViewById(R.id.adView);
+		AdRequest request = new AdRequest.Builder()
+	    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+	    .addTestDevice("faef38a2c635a978")  // My Galaxy Nexus test phone
+	    .build();
+		
+		adView.loadAd(request);
+	}
+	
 	public void onActivityCreated(Bundle paramBundle) {
 		super.onActivityCreated(paramBundle);
 
@@ -123,6 +139,7 @@ public class DetailsFragment extends Fragment {
 	
 	private void getScreenBackground() {
 		new AsyncTask<Void, Void, Bitmap>() {
+			@SuppressLint("NewApi")
 			@Override
 			protected Bitmap doInBackground(Void... params) {
 				Display localDisplay = getActivity().getWindowManager()
@@ -150,6 +167,7 @@ public class DetailsFragment extends Fragment {
 		}.execute();
 	}
 
+	@SuppressLint("NewApi")
 	private void setScreenBackground(Bitmap bitmap) {
 		FrameLayout localFrameLayout = (FrameLayout) getActivity()
 				.findViewById(R.id.detailsLayout);

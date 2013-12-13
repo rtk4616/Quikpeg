@@ -3,7 +3,10 @@ package com.bowstringLLP.quikpeg;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,23 +46,47 @@ public class MainActivity extends FragmentActivity implements
 	static List<Records> records;
 	static Records selectedRecord;
 	CountDownTimer timer;
+	private TabsClass tab;
 
 	static enum Mode {
 		NORMAL, LASTGOODSEARCH, DRY, DAYBEFOREDRY
 	};
 
+	@SuppressLint("NewApi")
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
 
-		if(android.os.Build.VERSION.SDK_INT > 10)
+		if(android.os.Build.VERSION.SDK_INT < 11)
+		{
+			tab = new TabsClass(savedInstanceState, this);
+			setContentView(R.layout.tabs_layout);
+		}
+		else
+		{// setup action bar for tabs
+		    ActionBar actionBar = getActionBar();
+		    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		    actionBar.setDisplayShowTitleEnabled(false);
+
+		    Tab tab = actionBar.newTab()
+		                       .setText("List")
+		                       .setTabListener(new TabListener<MainFragment>(
+		                               this, "List", MainFragment.class));
+		    actionBar.addTab(tab);
+
+		    tab = actionBar.newTab()
+		                   .setText("Dry")
+		                   .setTabListener(new TabListener<DryFragment>(
+		                           this, "Dry", DryFragment.class));
+		    actionBar.addTab(tab);
 			getOverflowMenu();
+			//setContentView(R.layout.activity_main);
+		}
 		
 		if(builder==null)
 			builder = new RecordBuilder(getApplicationContext());
 		
-		MainFragment mainFrag = ((MainFragment) getSupportFragmentManager()
-				.findFragmentByTag("MAIN"));
+		MainFragment mainFrag = ((MainFragment) getSupportFragmentManager().findFragmentByTag("MAIN"));
+		
 		if (mainFrag == null) {
 			settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			settings.registerOnSharedPreferenceChangeListener(prefListener);
@@ -75,7 +102,7 @@ public class MainActivity extends FragmentActivity implements
 			localFragmentTransaction.commit();
 		}
 	}
-
+	
 	public void onDialogContinueClick(DialogFragment paramDialogFragment) {
 		builder.readGoodRecords();
 		setRecordList(settings.getBoolean("Status", true));
@@ -345,5 +372,19 @@ public class MainActivity extends FragmentActivity implements
 
 	public interface RecordsUpdateListener {
 		public void onRecordsUpdated(List<Records> paramList, int paramInt);
+	}
+	
+	/**
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onSaveInstanceState(android.os.Bundle)
+	 */
+	@SuppressLint("NewApi")
+	protected void onSaveInstanceState(Bundle outState) {
+		if(android.os.Build.VERSION.SDK_INT < 11)
+			outState.putString("tab", tab.mTabHost.getCurrentTabTag());
+		else
+			outState.putString("tab", getActionBar().getSelectedTab().getText().toString());
+		super.onSaveInstanceState(outState);
 	}
 }

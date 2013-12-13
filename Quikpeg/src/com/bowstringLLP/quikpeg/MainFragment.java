@@ -27,6 +27,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bowstringLLP.quikpeg.MainActivity.RecordsUpdateListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 public class MainFragment extends Fragment implements RecordsUpdateListener {
 	static View mainView;
@@ -171,9 +173,24 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 			ViewGroup grp = (ViewGroup) mainView.getParent();
 			grp.removeAllViews();
 		}
+		
 		return mainView;
 	}
 
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onViewCreated(view, savedInstanceState);
+		
+		AdView adView = (AdView) getActivity().findViewById(R.id.adView);
+		AdRequest request = new AdRequest.Builder()
+	    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+	    .addTestDevice("faef38a2c635a978")  // My Galaxy Nexus test phone
+	    .build();
+		
+		adView.loadAd(request);
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
