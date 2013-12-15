@@ -58,8 +58,8 @@ public class MainActivity extends FragmentActivity implements
 
 		if(android.os.Build.VERSION.SDK_INT < 11)
 		{
-			tab = new TabsClass(savedInstanceState, this);
 			setContentView(R.layout.tabs_layout);
+			tab = new TabsClass(savedInstanceState, this);
 		}
 		else
 		{// setup action bar for tabs
@@ -84,15 +84,17 @@ public class MainActivity extends FragmentActivity implements
 		
 		if(builder==null)
 			builder = new RecordBuilder(getApplicationContext());
+
+		MainFragment mainFrag = ((MainFragment) getSupportFragmentManager().findFragmentByTag("List"));
 		
-		MainFragment mainFrag = ((MainFragment) getSupportFragmentManager().findFragmentByTag("MAIN"));
-		
-		if (mainFrag == null) {
+		//if (mainFrag == null) {
 			settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			settings.registerOnSharedPreferenceChangeListener(prefListener);
 			settings.edit().putString("Mode", Mode.NORMAL.toString()).apply();
 
 			fetchRecords(true);
+			
+			if (mainFrag == null) {
 			mainFrag = new MainFragment();
 			FragmentTransaction localFragmentTransaction = getSupportFragmentManager()
 					.beginTransaction();

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="10dp"
+    android:gravity="center" >
+
+    <TextView
+        android:id="@+id/liquorName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="6"
+        android:layout_marginLeft="10dp"
+        android:hint="liquorName" />
+
+    <TextView
+        android:id="@+id/quarter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="quarter"  />
+
+    <TextView
+        android:id="@+id/half"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="half"  />
+
+    <TextView
+        android:id="@+id/fiveHundred"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="fiveHundred"  />
+
+    <TextView
+        android:id="@+id/full"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="full"  />
+
+    <TextView
+        android:id="@+id/oneLitre"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"       
+        android:layout_marginRight="10dp"
+        android:hint="oneLitre"  />
+
+</LinearLayout>

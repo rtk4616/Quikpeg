@@ -125,7 +125,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
 		try
 		{
 			// Open your local db as the input stream
-			InputStream myInput = context.getAssets().open(DB_NAME);
+			InputStream myInput = context.getAssets().open("QuikpegDB.sqlite");
 
 			// Open the empty db as the output stream
 			OutputStream myOutput = context.openFileOutput(DB_NAME, Context.MODE_PRIVATE);

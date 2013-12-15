@@ -197,13 +197,13 @@ public class RecordBuilder{
 						switch(daysBetween(currentDate.getTime(), cal.getTime()))
 						{
 						case 0:	dryDay = new DryDay();
-						dryDay.holidayDate.setTime(new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date"))));
+						dryDay.holidayDate = new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date")));
 						dryDay.holidayName = cursor.getString(cursor.getColumnIndex("Holiday"));
 						MainActivity.settings.edit().putString("Mode", Mode.DRY.toString()).commit();
 						break;
 
 						case 1:	dryDay = new DryDay();
-						dryDay.holidayDate.setTime(new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date"))));
+						dryDay.holidayDate = new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date")));
 						dryDay.holidayName = cursor.getString(cursor.getColumnIndex("Holiday"));
 						MainActivity.settings.edit().putString("Mode", Mode.DAYBEFOREDRY.toString()).commit();
 						break;
@@ -376,6 +376,39 @@ public class RecordBuilder{
 	public void closeDatabase()
 	{
 		manager.close();
+	}
+
+	public List<DryDay> getDryDaysForState(String stateName) {
+		try
+		{
+			String query = "SELECT*FROM DryDays";
+			cursor = (SQLiteCursor) manager.select(query);
+
+			List<DryDay> dryList = new ArrayList<DryDay>();
+			if(cursor.moveToFirst())
+			{
+				do
+				{
+					String state = cursor.getString(cursor.getColumnIndex("State")).toUpperCase(Locale.ENGLISH);
+					if(state.matches(stateName.toUpperCase(Locale.ENGLISH)) || state.matches("NATIONAL"))
+					{
+						dryDay = new DryDay();
+						dryDay.holidayDate = new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH).parse(cursor.getString(cursor.getColumnIndex("Date")));
+						dryDay.holidayName = cursor.getString(cursor.getColumnIndex("Holiday"));
+						dryList.add(dryDay);
+					}
+				}while(cursor.moveToNext());
+			}
+			
+			if(!dryList.isEmpty())
+				return dryList;
+			
+			return null;
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
 
