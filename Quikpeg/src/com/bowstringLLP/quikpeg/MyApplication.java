@@ -16,7 +16,7 @@ public class MyApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		ACRA.init(this);
-        TestFlight.takeOff(this, "46f42421-4120-42ca-a7c0-46a74eef3ac3");
+        TestFlight.takeOff(this, "ab941133-f4da-4b56-9f47-d84a61ad7348");
 	}
 	
 	public Bitmap getPortBitmap()
