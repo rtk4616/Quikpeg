@@ -8,6 +8,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -33,6 +34,11 @@ public class MainActivity extends FragmentActivity implements
 	public static final String LOCATION_LATITUDE = "com.bowstringLLP.oneclickalcohol.LOCATION_LATITUDE";
 	public static final String LOCATION_LONGITUDE = "com.bowstringLLP.oneclickalcohol.LOCATION_LONGITUDE";
 	public static final String STORE_RECORD = "com.bowstringLLP.oneclickalcohol.STORE_RECORD";
+	public static final String SELECTED_TAB = "SELECTED-TAB";
+	public static final String TAB_CLASS_INSTANCE = "TAB-CLASS-INSTANCE";
+	public static final String LIST_TAB = "LIST-TAB";
+	public static final String DRY_TAB = "DRY-TAB";
+	public static final String RATES_TAB = "RTES-TAB";
 	
 	static ProgressDialog dialog;
 	static boolean isLocationUpdated = false;
@@ -47,6 +53,7 @@ public class MainActivity extends FragmentActivity implements
 	static Records selectedRecord;
 	CountDownTimer timer;
 	private TabsClass tab;
+	private Context context;
 
 	static enum Mode {
 		NORMAL, LASTGOODSEARCH, DRY, DAYBEFOREDRY
@@ -56,53 +63,67 @@ public class MainActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if(android.os.Build.VERSION.SDK_INT < 11)
-		{
+		context = this;
+		
+		if (android.os.Build.VERSION.SDK_INT < 11) {
 			setContentView(R.layout.tabs_layout);
 			tab = new TabsClass(savedInstanceState, this);
-		}
-		else
-		{// setup action bar for tabs
-		    ActionBar actionBar = getActionBar();
-		    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		    actionBar.setDisplayShowTitleEnabled(false);
+		} else {// setup action bar for tabs
+			ActionBar actionBar = getActionBar();
+			actionBar.getTabCount();
+			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+			actionBar.setDisplayShowTitleEnabled(false);
 
-		    Tab tab = actionBar.newTab()
-		                       .setText("List")
-		                       .setTabListener(new TabListener<MainFragment>(
-		                               this, "List", MainFragment.class));
-		    actionBar.addTab(tab);
+			Tab tab = actionBar
+					.newTab()
+					.setText("List")
+					.setTabListener(
+							new TabListener<MainFragment>(this, "List",
+									MainFragment.class));
+			actionBar.addTab(tab);
 
-		    tab = actionBar.newTab()
-		                   .setText("Dry")
-		                   .setTabListener(new TabListener<DryFragment>(
-		                           this, "Dry", DryFragment.class));
-		    actionBar.addTab(tab);
+			tab = actionBar
+					.newTab()
+					.setText("Dry")
+					.setTabListener(
+							new TabListener<DryFragment>(this, "Dry",
+									DryFragment.class));
+			actionBar.addTab(tab);
+
+			tab = actionBar
+					.newTab()
+					.setText("Rates")
+					.setTabListener(
+							new TabListener<RatesFragment>(this, "Rates",
+									RatesFragment.class));
+			actionBar.addTab(tab);
 			getOverflowMenu();
-			//setContentView(R.layout.activity_main);
+			// setContentView(R.layout.activity_main);
 		}
-		
-		if(builder==null)
+
+		if (builder == null)
 			builder = new RecordBuilder(getApplicationContext());
 
-		MainFragment mainFrag = ((MainFragment) getSupportFragmentManager().findFragmentByTag("List"));
-		
-		//if (mainFrag == null) {
-			settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-			settings.registerOnSharedPreferenceChangeListener(prefListener);
-			settings.edit().putString("Mode", Mode.NORMAL.toString()).apply();
+		//MainFragment mainFrag = ((MainFragment) getSupportFragmentManager()
+		//		.findFragmentByTag("List"));
 
-			fetchRecords(true);
-			
-			if (mainFrag == null) {
+		// if (mainFrag == null) {
+		settings = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+		settings.registerOnSharedPreferenceChangeListener(prefListener);
+		settings.edit().putString("Mode", Mode.NORMAL.toString()).apply();
+
+		fetchRecords(true);
+
+		/*if (mainFrag == null) {
 			mainFrag = new MainFragment();
 			FragmentTransaction localFragmentTransaction = getSupportFragmentManager()
 					.beginTransaction();
-			localFragmentTransaction.add(R.id.fragment_container,
-					mainFrag, "MAIN");
+			localFragmentTransaction
+					.add(android.R.id.content, mainFrag, "List");
 			localFragmentTransaction.addToBackStack(null);
 			localFragmentTransaction.commit();
-		}
+		}*/
 	}
 	
 	public void onDialogContinueClick(DialogFragment paramDialogFragment) {
@@ -145,7 +166,11 @@ public class MainActivity extends FragmentActivity implements
 			// fragment,
 			// and add the transaction to the back stack so the user can
 			// navigate back
-			transaction.replace(R.id.fragment_container, detailsFrag);
+			if (android.os.Build.VERSION.SDK_INT < 11)
+				transaction.replace(R.id.realtabcontent, detailsFrag);
+			else
+				transaction.replace(android.R.id.content, detailsFrag);
+			
 			transaction.addToBackStack(null);
 
 			// Commit the transaction
@@ -155,45 +180,46 @@ public class MainActivity extends FragmentActivity implements
 
 	LocationListener listener = new LocationListener() {
 		public void onLocationChanged(Location location) {
-			if (timer != null)
-			{
+			if (timer != null) {
 				timer.cancel();
-				timer=null;
-			}			
+				timer = null;
+			}
 
 			isLocationUpdated = true;
-			
-				currentLocation = location;
 
-				new AsyncTask<Void, Void, Void>() {
+			currentLocation = location;
 
-					@Override
-					protected void onPreExecute() {
-						super.onPreExecute();
-						
-						if (MainActivity.dialog == null || (MainActivity.dialog != null && MainActivity.dialog.isShowing() == false)) {
-							MainActivity.dialog = ProgressDialog.show(getParent(), null, "Loading");
-							MainActivity.dialog.setCancelable(true);
-							MainActivity.dialog
-									.setCanceledOnTouchOutside(false);
-						}
+			new AsyncTask<Void, Void, Void>() {
+
+				@Override
+				protected void onPreExecute() {
+					super.onPreExecute();
+
+					if (MainActivity.dialog == null
+							|| (MainActivity.dialog != null && MainActivity.dialog
+									.isShowing() == false)) {
+						MainActivity.dialog = ProgressDialog.show(context,
+								null, "Loading");
+						MainActivity.dialog.setCancelable(true);
+						MainActivity.dialog.setCanceledOnTouchOutside(false);
 					}
+				}
 
-					@Override
-					protected Void doInBackground(Void... params) {
-						builder.buildRecordList(currentLocation);
-						return null;
-					}
+				@Override
+				protected Void doInBackground(Void... params) {
+					builder.buildRecordList(currentLocation);
+					return null;
+				}
 
-					@Override
-					protected void onPostExecute(Void result) {
-						super.onPostExecute(result);
-						setRecordList(settings.getBoolean("Status", true));
-					}
+				@Override
+				protected void onPostExecute(Void result) {
+					super.onPostExecute(result);
+					setRecordList(settings.getBoolean("Status", true));
+				}
 
-				}.execute();
+			}.execute();
 
-			}
+		}
 
 		public void onProviderDisabled(String paramString) {
 		}
@@ -235,7 +261,7 @@ public class MainActivity extends FragmentActivity implements
 							Toast.LENGTH_LONG).show();
 					break;
 				}
-			} else if(key == "Status")
+			} else if (key == "Status")
 				setRecordList(prefs.getBoolean(key, true));
 		}
 	};
@@ -248,9 +274,9 @@ public class MainActivity extends FragmentActivity implements
 				&& builder.getMasterRecordList().size() != 0)
 			builder.writeGoodRecords();
 
-		if(dialog!=null)
-		{	dialog.dismiss();
-		dialog = null;
+		if (dialog != null) {
+			dialog.dismiss();
+			dialog = null;
 		}
 		// EasyTracker.getInstance().activityStop(this);
 	}
@@ -265,7 +291,8 @@ public class MainActivity extends FragmentActivity implements
 	private void getOverflowMenu() {
 
 		try {
-			ViewConfiguration config = ViewConfiguration.get(getApplicationContext());
+			ViewConfiguration config = ViewConfiguration
+					.get(getApplicationContext());
 			Field menuKeyField = ViewConfiguration.class
 					.getDeclaredField("sHasPermanentMenuKey");
 			if (menuKeyField != null) {
@@ -283,11 +310,11 @@ public class MainActivity extends FragmentActivity implements
 		getActionBar().setDisplayHomeAsUpEnabled(paramBoolean);
 	}
 
-/*	private boolean isSameProvider(String paramString1, String paramString2) {
-		if (paramString1 == null)
-			return paramString2 == null;
-		return paramString1.equals(paramString2);
-	}*/
+	/*
+	 * private boolean isSameProvider(String paramString1, String paramString2)
+	 * { if (paramString1 == null) return paramString2 == null; return
+	 * paramString1.equals(paramString2); }
+	 */
 
 	private void setRecordList(boolean prefrence) {
 
@@ -312,12 +339,14 @@ public class MainActivity extends FragmentActivity implements
 
 	public void fetchRecords(boolean shouldRefresh) {
 		if (shouldRefresh) {
-			
-			if (MainActivity.dialog == null || (MainActivity.dialog != null && MainActivity.dialog.isShowing() == false)) {
-				MainActivity.dialog = ProgressDialog.show(this, null, "Loading");
+
+			if (MainActivity.dialog == null
+					|| (MainActivity.dialog != null && MainActivity.dialog
+							.isShowing() == false)) {
+				MainActivity.dialog = ProgressDialog
+						.show(this, null, "Loading");
 				MainActivity.dialog.setCancelable(true);
-				MainActivity.dialog
-						.setCanceledOnTouchOutside(false);
+				MainActivity.dialog.setCanceledOnTouchOutside(false);
 			}
 			offset = 20;
 			locationManager = ((LocationManager) getSystemService("location"));
@@ -375,7 +404,7 @@ public class MainActivity extends FragmentActivity implements
 	public interface RecordsUpdateListener {
 		public void onRecordsUpdated(List<Records> paramList, int paramInt);
 	}
-	
+
 	/**
 	 * (non-Javadoc)
 	 * 
@@ -383,10 +412,14 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	@SuppressLint("NewApi")
 	protected void onSaveInstanceState(Bundle outState) {
-		if(android.os.Build.VERSION.SDK_INT < 11)
-			outState.putString("tab", tab.mTabHost.getCurrentTabTag());
+		if (android.os.Build.VERSION.SDK_INT < 11)
+		{
+			outState.putString(SELECTED_TAB, tab.mTabHost.getCurrentTabTag());
+			outState.putString(SELECTED_TAB, tab.mTabHost.getCurrentTabTag());
+		}
 		else
-			outState.putString("tab", getActionBar().getSelectedTab().getText().toString());
+			outState.putString(SELECTED_TAB, getActionBar().getSelectedTab().getText()
+					.toString());
 		super.onSaveInstanceState(outState);
 	}
 }

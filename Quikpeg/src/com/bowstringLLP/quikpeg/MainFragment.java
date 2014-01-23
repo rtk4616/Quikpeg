@@ -55,7 +55,7 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 		
 		FragmentTransaction localFragmentTransaction = getFragmentManager()
 				.beginTransaction();
-		localFragmentTransaction.replace(R.id.fragment_container, mapFragment);
+		localFragmentTransaction.replace(android.R.id.content, mapFragment);
 		localFragmentTransaction.commit();
 	}
 

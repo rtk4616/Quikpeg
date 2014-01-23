@@ -16,15 +16,18 @@
         <item>contact@bowstringstudio.in</item>
     </string-array>
 
-    <string name="defaultTimings">1200 - 2200</string>
+    <string name="defaultTimings">1200 &#8211; 2200</string>
     <string name="mainTitle">Quikpeg</string>
     <string name="title_activity_main_fragment">MainFragment</string>
     <string name="title_activity_details_fragment">DetailsFragment</string>
     <string name="title_activity_about">AboutActivity</string>
      <string name="twitterLink"><u>Follow us on Twitter:\n@Quikpeg</u></string>
-     <string-array name="StateNames">
+     <string-array name="DryDaysStateNames">
          <item >All India</item>
          <item >Delhi</item>
+         <item >Rajasthan</item>
+     </string-array> 
+     <string-array name="RatesListStateNames">
          <item >Rajasthan</item>
      </string-array> 
 </resources>

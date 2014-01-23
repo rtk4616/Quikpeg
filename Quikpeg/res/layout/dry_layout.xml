@@ -5,14 +5,30 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <Spinner
-        android:id="@+id/state_spinner"
+    <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+    
+    <Spinner
+        android:id="@+id/state_spinner"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="6"
     android:background="#000000" />
     
+    <Button 
+        android:id="@+id/spinner_button"        
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:gravity="center"
+    android:background="@drawable/navigation_expand" />
+    
+    </LinearLayout>
+    
     <ListView 
-    android:id="@+id/rate_list"
+    android:id="@+id/dry_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="10dp" />

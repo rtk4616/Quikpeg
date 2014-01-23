@@ -57,7 +57,7 @@ public class MapTabFragment extends Fragment implements
 
 		FragmentTransaction localFragmentTransaction = getFragmentManager()
 				.beginTransaction();
-		localFragmentTransaction.replace(R.id.fragment_container, mainFragment);
+		localFragmentTransaction.replace(android.R.id.content, mainFragment);
 		localFragmentTransaction.commit();
 	}
 

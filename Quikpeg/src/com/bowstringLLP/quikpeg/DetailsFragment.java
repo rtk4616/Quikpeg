@@ -72,13 +72,19 @@ public class DetailsFragment extends Fragment {
 		// TODO Auto-generated method stub
 		super.onViewCreated(view, savedInstanceState);
 		
-		AdView adView = (AdView) getActivity().findViewById(R.id.adView);
+		try
+		{
+			AdView adView = (AdView) getActivity().findViewById(R.id.adView);
 		AdRequest request = new AdRequest.Builder()
 	    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
 	    .addTestDevice("faef38a2c635a978")  // My Galaxy Nexus test phone
 	    .build();
 		
 		adView.loadAd(request);
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public void onActivityCreated(Bundle paramBundle) {

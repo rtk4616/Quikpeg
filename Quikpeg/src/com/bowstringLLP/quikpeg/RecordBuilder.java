@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -409,6 +410,50 @@ public class RecordBuilder{
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public HashMap<String, List<Integer>> getRatesForState(String stateName) {
+		
+		try
+	{
+		String query = "SELECT*FROM PL" + stateName;
+		cursor = (SQLiteCursor) manager.select(query);
+
+		HashMap<String, List<Integer>> rateMap = new HashMap<String, List<Integer>>();
+		if(cursor.moveToFirst())
+		{
+			do
+			{
+				//String state = cursor.getString(cursor.getColumnIndex("State")).toUpperCase(Locale.ENGLISH);
+				//if(state.matches(stateName.toUpperCase(Locale.ENGLISH)))
+				{
+					String brandName = cursor.getString(cursor.getColumnIndex("Name"));
+					List<Integer> rateList = new ArrayList<Integer>();
+					rateList.add(cursor.getInt(cursor.getColumnIndex("50 ml")));
+					rateList.add(cursor.getInt(cursor.getColumnIndex("200 ml")));
+					rateList.add(cursor.getInt(cursor.getColumnIndex("330 ml")));
+					rateList.add(cursor.getInt(cursor.getColumnIndex("375 ml")));
+					rateList.add(cursor.getInt(cursor.getColumnIndex("500 ml")));
+					rateList.add(cursor.getInt(cursor.getColumnIndex("650 ml")));
+					rateList.add(cursor.getInt(cursor.getColumnIndex("700 ml")));
+					rateList.add(cursor.getInt(cursor.getColumnIndex("750 ml")));
+					rateList.add(cursor.getInt(cursor.getColumnIndex("1000 ml")));
+					//rateList.add(cursor.getInt(cursor.getColumnIndex("2000 ml")));
+					
+					rateMap.put(brandName, rateList);
+				}
+			}while(cursor.moveToNext());
+		}
+		
+		if(!rateMap.isEmpty())
+			return rateMap;
+		
+		return null;
+	}catch(Exception e)
+	{
+		e.printStackTrace();
+		return null;
+	}
 	}
 }
 

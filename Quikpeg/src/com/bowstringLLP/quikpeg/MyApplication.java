@@ -7,6 +7,8 @@ import org.acra.sender.HttpSender;
 import android.app.Application;
 import android.graphics.Bitmap;
 
+import com.testflightapp.lib.TestFlight;
+
 @ReportsCrashes(formKey = "", formUri = "https://bowstringstudio.cloudant.com/acra-quikpeg/_design/acra-storage/_update/report", formUriBasicAuthLogin = "verediseendstedyselyctse", formUriBasicAuthPassword = "HbVLg3lkj1JrwaXnRjKpGw74", httpMethod = HttpSender.Method.PUT, reportType = HttpSender.Type.JSON)
 public class MyApplication extends Application {
 	
@@ -14,6 +16,7 @@ public class MyApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		ACRA.init(this);
+        TestFlight.takeOff(this, "46f42421-4120-42ca-a7c0-46a74eef3ac3");
 	}
 	
 	public Bitmap getPortBitmap()
