@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.bowstringLLP.quikpeg.MainFragment.ListItemClickListener;
 import com.bowstringLLP.quikpeg.NoticeDialogFragment.NoticeDialogListener;
+import com.google.analytics.tracking.android.EasyTracker;
 
 public class MainActivity extends FragmentActivity implements
 		NoticeDialogListener, ListItemClickListener {
@@ -36,9 +37,10 @@ public class MainActivity extends FragmentActivity implements
 	public static final String STORE_RECORD = "com.bowstringLLP.oneclickalcohol.STORE_RECORD";
 	public static final String SELECTED_TAB = "SELECTED-TAB";
 	public static final String TAB_CLASS_INSTANCE = "TAB-CLASS-INSTANCE";
-	public static final String LIST_TAB = "LIST-TAB";
-	public static final String DRY_TAB = "DRY-TAB";
-	public static final String RATES_TAB = "RTES-TAB";
+	public static final String LIST_TAB = "List";
+	public static final String DRY_TAB = "Dry";
+	public static final String RATES_TAB = "Rates";
+	public static final String RECORD_BUILDER = "RecordBuilder Object";
 	
 	static ProgressDialog dialog;
 	static boolean isLocationUpdated = false;
@@ -54,7 +56,7 @@ public class MainActivity extends FragmentActivity implements
 	CountDownTimer timer;
 	private TabsClass tab;
 	private Context context;
-
+	
 	static enum Mode {
 		NORMAL, LASTGOODSEARCH, DRY, DAYBEFOREDRY
 	};
@@ -62,7 +64,7 @@ public class MainActivity extends FragmentActivity implements
 	@SuppressLint("NewApi")
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		
 		context = this;
 		
 		if (android.os.Build.VERSION.SDK_INT < 11) {
@@ -97,33 +99,25 @@ public class MainActivity extends FragmentActivity implements
 							new TabListener<RatesFragment>(this, "Rates",
 									RatesFragment.class));
 			actionBar.addTab(tab);
+			
+			if(savedInstanceState != null)
+				actionBar.selectTab(actionBar.getTabAt(savedInstanceState.getInt(SELECTED_TAB, 1)));
+			
 			getOverflowMenu();
-			// setContentView(R.layout.activity_main);
 		}
-
+		
+		if(savedInstanceState != null)
+			builder = savedInstanceState.getParcelable(RECORD_BUILDER);
+		
 		if (builder == null)
 			builder = new RecordBuilder(getApplicationContext());
-
-		//MainFragment mainFrag = ((MainFragment) getSupportFragmentManager()
-		//		.findFragmentByTag("List"));
-
-		// if (mainFrag == null) {
+		
 		settings = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
 		settings.registerOnSharedPreferenceChangeListener(prefListener);
 		settings.edit().putString("Mode", Mode.NORMAL.toString()).apply();
-
-		fetchRecords(true);
-
-		/*if (mainFrag == null) {
-			mainFrag = new MainFragment();
-			FragmentTransaction localFragmentTransaction = getSupportFragmentManager()
-					.beginTransaction();
-			localFragmentTransaction
-					.add(android.R.id.content, mainFrag, "List");
-			localFragmentTransaction.addToBackStack(null);
-			localFragmentTransaction.commit();
-		}*/
+		
+		fetchRecords(savedInstanceState == null);
 	}
 	
 	public void onDialogContinueClick(DialogFragment paramDialogFragment) {
@@ -266,6 +260,11 @@ public class MainActivity extends FragmentActivity implements
 		}
 	};
 
+	protected void onStart() {
+		super.onStart();
+		
+		EasyTracker.getInstance().activityStart(this);
+	};
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -278,7 +277,7 @@ public class MainActivity extends FragmentActivity implements
 			dialog.dismiss();
 			dialog = null;
 		}
-		// EasyTracker.getInstance().activityStop(this);
+		 EasyTracker.getInstance().activityStop(this);
 	}
 
 	@Override
@@ -393,9 +392,14 @@ public class MainActivity extends FragmentActivity implements
 				LOCATION_LONGITUDE,
 				getIntent().getDoubleExtra(LOCATION_LONGITUDE,
 						currentLocation.getLongitude()));
-		startActivity(intent);
+		startActivityForResult(intent, 1);
 	}
 
+	@Override
+	protected void onActivityResult(int arg0, int arg1, Intent arg2) {
+		super.onActivityResult(arg0, arg1, arg2);
+	}
+	
 	public void showNoticeDialog(String paramString) {
 		DialogFragment dialog = NoticeDialogFragment.newInstance(paramString);
 		dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
@@ -413,13 +417,11 @@ public class MainActivity extends FragmentActivity implements
 	@SuppressLint("NewApi")
 	protected void onSaveInstanceState(Bundle outState) {
 		if (android.os.Build.VERSION.SDK_INT < 11)
-		{
-			outState.putString(SELECTED_TAB, tab.mTabHost.getCurrentTabTag());
-			outState.putString(SELECTED_TAB, tab.mTabHost.getCurrentTabTag());
-		}
+			outState.putString(SELECTED_TAB, tab.mTabHost.getCurrentTabTag());		
 		else
-			outState.putString(SELECTED_TAB, getActionBar().getSelectedTab().getText()
-					.toString());
+			outState.putInt(SELECTED_TAB, getActionBar().getSelectedTab().getPosition());
+		
+		outState.putParcelable(RECORD_BUILDER, builder);
 		super.onSaveInstanceState(outState);
 	}
 }

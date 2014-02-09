@@ -16,11 +16,13 @@ import android.widget.Spinner;
 
 public class RatesFragment extends Fragment {
 	
-	RatesListAdapter adapter;
+	private RatesListAdapter adapter;
+	private ArrayAdapter<CharSequence> spinnerAdapter;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		adapter = new RatesListAdapter(getActivity());
 		 setRetainInstance(true);
 	}
 
@@ -32,16 +34,15 @@ public class RatesFragment extends Fragment {
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+	public void onActivityCreated(Bundle paramBundle) {
+		super.onActivityCreated(paramBundle);
 
 		Spinner spinner = (Spinner) getActivity().findViewById(
-				R.id.state_spinner);
-		adapter = new RatesListAdapter(getActivity());
+				R.id.state_rate_spinner);
 		ExpandableListView ratesList = (ExpandableListView) getActivity().findViewById(R.id.lvExp);
 		ratesList.setAdapter(adapter);
 		
-		ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.RatesListStateNames, R.layout.spinner_layout);
+		spinnerAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.RatesListStateNames, R.layout.spinner_layout);
 		//spinnerAdapter.remove(spinnerAdapter.getItem(0));
 		spinner.setAdapter(spinnerAdapter);
 		
@@ -65,5 +66,6 @@ public class RatesFragment extends Fragment {
 				
 			}
 		});
+		
 	}
 }

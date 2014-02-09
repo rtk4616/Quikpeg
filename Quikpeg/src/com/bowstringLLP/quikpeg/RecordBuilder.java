@@ -23,11 +23,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteCursor;
 import android.location.Location;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.StrictMode;
 
 import com.bowstringLLP.quikpeg.MainActivity.Mode;
 
-public class RecordBuilder{
+public class RecordBuilder implements Parcelable{
 
 	DataBaseManager manager;
 	SQLiteCursor cursor;
@@ -454,6 +456,18 @@ public class RecordBuilder{
 		e.printStackTrace();
 		return null;
 	}
+	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 

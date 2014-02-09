@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     android:id="@+id/mapLayout"
     android:layout_width="fill_parent"
@@ -12,9 +12,7 @@
             ads:adSize="SMART_BANNER"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        ads:adUnitId="a1526111d1a8c50"
-        ads:loadAdOnCreate="true"
-     ads:testDevices="TEST_EMULATOR, faef38a2c635a978" />
+        ads:adUnitId="a1526111d1a8c50" />
     
     <fragment
         android:id="@+id/map"

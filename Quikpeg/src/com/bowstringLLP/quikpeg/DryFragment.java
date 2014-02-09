@@ -26,11 +26,13 @@ public class DryFragment extends Fragment {
 	private static final float ROTATE_FROM = 0.0f;
 	private static final float ROTATE_TO = -180.0f;
 	Boolean flag = false;
+	private ArrayAdapter<CharSequence> spinnerAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		adapter = new DryListAdapter(getActivity());
+		setRetainInstance(true);
 	}
 
 	public View onCreateView(LayoutInflater paramLayoutInflater,
@@ -41,14 +43,14 @@ public class DryFragment extends Fragment {
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+	public void onActivityCreated(Bundle paramBundle) {
+		super.onActivityCreated(paramBundle);
 
 		spinner = (Spinner) getActivity().findViewById(R.id.state_spinner);
 		ListView dryList = (ListView) getActivity().findViewById(R.id.dry_list);
 		dryList.setAdapter(adapter);
 
-		ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter
+		spinnerAdapter = ArrayAdapter
 				.createFromResource(getActivity(), R.array.DryDaysStateNames,
 						R.layout.spinner_layout);
 		spinner.setAdapter(spinnerAdapter);

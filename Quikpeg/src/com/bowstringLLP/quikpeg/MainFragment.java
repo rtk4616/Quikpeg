@@ -184,8 +184,6 @@ public class MainFragment extends Fragment implements RecordsUpdateListener {
 		
 		AdView adView = (AdView) getActivity().findViewById(R.id.adView);
 		AdRequest request = new AdRequest.Builder()
-	    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
-	    .addTestDevice("faef38a2c635a978")  // My Galaxy Nexus test phone
 	    .build();
 		
 		adView.loadAd(request);

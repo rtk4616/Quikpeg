@@ -6,7 +6,6 @@ import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 
 @TargetApi(11)
 public final class TabListener<T extends Fragment> implements
@@ -39,13 +38,14 @@ public final class TabListener<T extends Fragment> implements
 		android.support.v4.app.FragmentTransaction fft = mActivity
 				.getSupportFragmentManager().beginTransaction();
 
-		mFragment = mActivity
-				.getSupportFragmentManager().findFragmentByTag(mTag);
+		mFragment = mActivity.getSupportFragmentManager().findFragmentByTag(
+				mTag);
 		if (mFragment == null) { // If not, instantiate and add it to the
 									// activity
 			mFragment = Fragment.instantiate(mActivity, mClass.getName());
 			fft.add(android.R.id.content, mFragment, mTag);
-		}
+		} else
+			fft.show(mFragment);
 		fft.commit();
 	}
 
@@ -53,10 +53,11 @@ public final class TabListener<T extends Fragment> implements
 
 		android.support.v4.app.FragmentTransaction fft = mActivity
 				.getSupportFragmentManager().beginTransaction();
-		if (mFragment != null) {
-			mActivity.getSupportFragmentManager().popBackStackImmediate(null,
-					FragmentManager.POP_BACK_STACK_INCLUSIVE);
-		}
+
+		for(int i=0; i<mActivity.getSupportFragmentManager().getBackStackEntryCount(); i++)
+			mActivity.getSupportFragmentManager().popBackStackImmediate();
+		
+		fft.hide(mFragment);
 		fft.commit();
 	}
 

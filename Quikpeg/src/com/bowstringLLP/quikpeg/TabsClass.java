@@ -4,8 +4,6 @@ import java.util.HashMap;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -17,7 +15,7 @@ import android.widget.TabHost.TabContentFactory;
  * @author mwho
  * 
  */
-public class TabsClass implements TabHost.OnTabChangeListener, Parcelable {
+public class TabsClass implements TabHost.OnTabChangeListener{
 
 	public TabHost mTabHost;
 	private HashMap<String, TabInfo> mapTabInfo = new HashMap<String, TabInfo>();
@@ -35,7 +33,6 @@ public class TabsClass implements TabHost.OnTabChangeListener, Parcelable {
 			this.clss = clazz;
 			this.args = args;
 		}
-
 	}
 
 	class TabFactory implements TabContentFactory {
@@ -83,32 +80,24 @@ public class TabsClass implements TabHost.OnTabChangeListener, Parcelable {
 		mTabHost.setup();
 		TabInfo tabInfo = null;
 		addTab(this.mTabHost,
-				this.mTabHost.newTabSpec("List").setIndicator("List"),
-				(tabInfo = new TabInfo("List", MainFragment.class, args)));
+				this.mTabHost.newTabSpec(MainActivity.LIST_TAB).setIndicator(MainActivity.LIST_TAB),
+				(tabInfo = new TabInfo(MainActivity.LIST_TAB, MainFragment.class, args)));
 		this.mapTabInfo.put(tabInfo.tag, tabInfo);
 		addTab(this.mTabHost,
-				this.mTabHost.newTabSpec("Dry").setIndicator("Dry"),
-				(tabInfo = new TabInfo("Dry", DryFragment.class, args)));
+				this.mTabHost.newTabSpec(MainActivity.DRY_TAB).setIndicator(MainActivity.DRY_TAB),
+				(tabInfo = new TabInfo(MainActivity.DRY_TAB, DryFragment.class, args)));
 		this.mapTabInfo.put(tabInfo.tag, tabInfo);
 		addTab(this.mTabHost,
-				this.mTabHost.newTabSpec("Price").setIndicator("Price"),
-				(tabInfo = new TabInfo("Price", RatesFragment.class, args)));
+				this.mTabHost.newTabSpec(MainActivity.RATES_TAB).setIndicator(MainActivity.RATES_TAB),
+				(tabInfo = new TabInfo(MainActivity.RATES_TAB, RatesFragment.class, args)));
 		this.mapTabInfo.put(tabInfo.tag, tabInfo);
-		// Default to first tab
-		this.onTabChanged("List");
-		//
+		
 		mTabHost.setOnTabChangedListener(this);
 
-		if (args != null) {
-			mTabHost.setCurrentTabByTag(args.getString("tab")); // set
-																// the
-																// tab
-																// as
-																// per
-																// the
-																// saved
-																// state
-		}
+		if (args != null)
+			onTabChanged(args.getString(MainActivity.SELECTED_TAB));
+		else
+			onTabChanged(MainActivity.LIST_TAB);
 	}
 
 	/**
@@ -133,10 +122,9 @@ public class TabsClass implements TabHost.OnTabChangeListener, Parcelable {
 					.beginTransaction();
 			ft.detach(tabInfo.fragment);
 			ft.commit();
-			parentActivity.getSupportFragmentManager()
-					.executePendingTransactions();
+		//	parentActivity.getSupportFragmentManager()
+		//			.executePendingTransactions();
 		}
-
 		tabHost.addTab(tabSpec);
 	}
 
@@ -145,45 +133,31 @@ public class TabsClass implements TabHost.OnTabChangeListener, Parcelable {
 	 * 
 	 * @see android.widget.TabHost.OnTabChangeListener#onTabChanged(java.lang.String)
 	 */
+	@Override
 	public void onTabChanged(String tag) {
 		TabInfo newTab = (TabInfo) mapTabInfo.get(tag);
 		if (mLastTab != newTab) {
 			FragmentTransaction ft = parentActivity.getSupportFragmentManager()
 					.beginTransaction();
-			if (mLastTab != null) {
-				if (mLastTab.fragment != null) {
-					for (int i = 0; i < parentActivity
-							.getSupportFragmentManager()
-							.getBackStackEntryCount();) {
-						parentActivity.getSupportFragmentManager()
-								.popBackStackImmediate();
-					}
-				}
+			if (mLastTab != null)
+			{
+				ft.hide(mLastTab.fragment);
+				for(int i=0; i<parentActivity.getSupportFragmentManager().getBackStackEntryCount(); i++)
+					parentActivity.getSupportFragmentManager().popBackStackImmediate();
 			}
+			
 			if (newTab != null) {
 				if (newTab.fragment == null)
-					newTab.fragment = Fragment.instantiate(parentActivity,
+				{	newTab.fragment = Fragment.instantiate(parentActivity,
 							newTab.clss.getName(), newTab.args);
 
-				ft.replace(R.id.realtabcontent, newTab.fragment, newTab.tag);
+				ft.add(R.id.realtabcontent, newTab.fragment, newTab.tag);
+				}
+				else
+				ft.show(newTab.fragment);
 			}
-
 			mLastTab = newTab;
 			ft.commit();
-			parentActivity.getSupportFragmentManager()
-					.executePendingTransactions();
 		}
-	}
-
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		// TODO Auto-generated method stub
-		
 	}
 }

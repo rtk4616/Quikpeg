@@ -3,6 +3,9 @@
  */
 package com.bowstringLLP.quikpeg;
 
+import com.bowstringLLP.quikpeg.R;
+import com.bowstringLLP.quikpeg.R.layout;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.view.LayoutInflater;

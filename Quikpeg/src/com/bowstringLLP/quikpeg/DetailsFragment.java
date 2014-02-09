@@ -1,8 +1,5 @@
 package com.bowstringLLP.quikpeg;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
@@ -24,8 +21,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView.FindListener;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 public class DetailsFragment extends Fragment {
 	View detailsView;
@@ -44,6 +46,7 @@ public class DetailsFragment extends Fragment {
 	@TargetApi(11)
 	private void initializeActionBar() {
 		getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+		((ImageView) getActivity().findViewById(android.R.id.home)).setPadding(15,0,7,0);
 	}
 	
 	public View onCreateView(LayoutInflater paramLayoutInflater,
@@ -76,8 +79,6 @@ public class DetailsFragment extends Fragment {
 		{
 			AdView adView = (AdView) getActivity().findViewById(R.id.adView);
 		AdRequest request = new AdRequest.Builder()
-	    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
-	    .addTestDevice("faef38a2c635a978")  // My Galaxy Nexus test phone
 	    .build();
 		
 		adView.loadAd(request);
@@ -164,11 +165,17 @@ public class DetailsFragment extends Fragment {
 			}
 
 			protected void onPostExecute(Bitmap result) {
-				if (getActivity().getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+				try
+				{
+					if (getActivity().getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 					myApp.setPortBitmap(result);
 				else
 					myApp.setLandBitmap(result);
 				setScreenBackground(result);
+				}catch(Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}.execute();
 	}

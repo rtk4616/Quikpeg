@@ -6,7 +6,7 @@
     android:orientation="vertical" >
 
     <Spinner
-        android:id="@+id/state_spinner"
+        android:id="@+id/state_rate_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#000000" />

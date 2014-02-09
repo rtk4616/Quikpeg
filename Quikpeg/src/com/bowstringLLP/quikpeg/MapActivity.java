@@ -89,8 +89,6 @@ public class MapActivity extends FragmentActivity {
 			
 			AdView adView = (AdView) findViewById(R.id.adView);
 			AdRequest request = new AdRequest.Builder()
-		    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
-		    .addTestDevice("faef38a2c635a978")  // My Galaxy Nexus test phone
 		    .build();
 			
 			adView.loadAd(request);
